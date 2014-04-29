@@ -1,0 +1,15 @@
+web/bundles/
+app/bootstrap*
+app/cache/*
+app/logs/*
+app/build/*
+target
+vendor/*
+
+src/ElendevCheckoutBundle
+src/Elendev
+
+*.log
+.settings
+.idea
+.vagrant

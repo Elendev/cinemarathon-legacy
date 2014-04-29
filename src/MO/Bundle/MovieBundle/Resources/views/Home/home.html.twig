@@ -1,0 +1,31 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}MOMovieBundle:Home:home{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {{form_javascript(form)}}
+            {{form(form)}}
+        </div>
+    </div>
+
+    <div class="row">
+        {% for movie in movies %}
+            <div class="col-xs-2 .col-sm-3 movie">
+                <a href="{{path('mo_movie.movie_detail', {'movie_url': movie.pageUrl})}}">
+                    <div class="thumbnail">
+                        <h5>{{movie.name}}</h5>
+                        <img src="{{movie.imageUrl}}" >
+
+                        <div class="caption">
+
+                            <p><a href="{{movie.pageUrl}}" target="_blank" class="btn btn-primary" role="button">Vers le site</a></p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

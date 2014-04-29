@@ -1,0 +1,21 @@
+parameters:
+#    mo_movie.example.class: MO\Bundle\MovieBundle\Example
+
+services:
+#    mo_movie.example:
+#        class: %mo_movie.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+    mo_movie.manager.movie_manager:
+        class: MO\Bundle\MovieBundle\Manager\MovieManager
+        arguments: [@mo_movie.provider.pathe]
+
+
+    mo_movie.provider.pathe:
+        class: MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider
+        arguments: [@mo_movie.pool.cinema]
+
+    mo_movie.pool.cinema:
+        class: MO\Bundle\MovieBundle\MovieDataProviders\CinemaPool
+
+    mo_movie.manager.movie_matcher:
+        class: MO\Bundle\MovieBundle\Manager\MovieMatcherManager

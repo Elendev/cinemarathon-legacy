@@ -1,0 +1,4 @@
+mo_movie:
+    resource: "@MOMovieBundle/Controller/"
+    type:     annotation
+

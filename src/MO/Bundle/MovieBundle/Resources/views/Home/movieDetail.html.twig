@@ -1,0 +1,36 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}MOMovieBundle:Home:movieDetail{% endblock %}
+
+
+{% block breadcumb %}
+    {{parent()}}
+    <li>{{movie.name}}</li>
+{% endblock %}
+
+
+{% block body %}
+    <h1>{{movie.name}}</h1>
+    <div class="row">
+        {% for performance in movie.performances %}
+            <div class="col-xs-12">
+
+                <div class="col-xs-3">
+                    {{performance.cinema.name}} {{performance.kind}}
+                </div>
+
+                <div class="col-xs-3">
+                    {{performance.hall.name}}
+                </div>
+
+                <div class="col-xs-3">
+                    {{performance.startDate|date('Y-m-d H:i')}}
+                </div>
+
+                <div class="col-xs-3">
+                    {{performance.endDate|date('Y-m-d H:i')}}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

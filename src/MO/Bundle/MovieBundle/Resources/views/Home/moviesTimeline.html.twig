@@ -1,0 +1,21 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}MOMovieBundle:Timeline{% endblock %}
+
+{% block breadcumb %}
+    {{parent()}}
+    <li>Timeline</li>
+{% endblock %}
+
+{% block body %}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {{form_javascript(form)}}
+            {{form(form)}}
+        </div>
+    </div>
+
+    <h1>Movie timeline</h1>
+
+{% endblock %}
