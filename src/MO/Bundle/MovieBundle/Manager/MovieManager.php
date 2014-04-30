@@ -27,8 +27,8 @@ class MovieManager {
      * @param $url
      * @return Movie
      */
-    public function getMovieFromUrl($url) {
-        return $this->provider->getMovie($url);
+    public function getMovieFromUrl($url, $options = array()) {
+        return $this->provider->getMovie($url, $options);
     }
 
     public function getCurrentMovies(){

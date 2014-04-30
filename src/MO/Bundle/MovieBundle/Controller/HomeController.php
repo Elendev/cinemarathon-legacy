@@ -63,13 +63,15 @@ class HomeController extends Controller
         if($form->isValid()){
             $moviesToUse = $form->get('movies')->getData();
 
+            $locale = $form->get('cityLocale')->getData();
+
             foreach($moviesToUse as $movieUrl){
-                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl);
+                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl, array('locale' => $locale));
             }
 
             $options = array(
                 'same_cinema' => $form->get('same_cinema')->getData(),
-                'same_hall' => $form->get('same_hall')->getData(),
+                'same_hall' => $form->get('same_hall')->getData()
             );
 
             $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList, $options);
@@ -96,7 +98,13 @@ class HomeController extends Controller
         $formBuilder = $this->createFormBuilder(null, array('csrf_protection' => false))
             ->setAction($this->generateUrl('mo_movie.movie_timeline'))
             ->setMethod('GET')
-            ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true))
+            ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true, 'label' => 'Films'))
+            ->add('cityLocale', 'choice', array('choices' => array(
+                20 => 'Lausanne',
+                23 => 'Genève',
+                21 => 'Berne',
+                22 => 'Bâle'
+            ), 'label' => 'Région'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
             ->add('submit', 'submit', array('label' => 'GOGOGO' ));

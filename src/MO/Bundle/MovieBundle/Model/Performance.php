@@ -44,6 +44,14 @@ class Performance {
      */
     private $cinema;
 
+    public function __construct(){
+        $this->startDate = new \DateTime();
+        $this->startDate->setTimestamp(0);
+
+        $this->endDate = new \DateTime();
+        $this->endDate->setTimestamp(0);
+    }
+
     /**
      * @param mixed $kind
      */
@@ -82,6 +90,11 @@ class Performance {
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
+
+        if(!$endDate){
+            $this->endDate = new \DateTime();
+            $this->endDate->setTimestamp(0);
+        }
     }
 
     /**
@@ -114,6 +127,11 @@ class Performance {
     public function setStartDate($startDate)
     {
         $this->startDate = $startDate;
+
+        if(!$startDate){
+            $this->startDate = new \DateTime();
+            $this->startDate->setTimestamp(0);
+        }
     }
 
     /**

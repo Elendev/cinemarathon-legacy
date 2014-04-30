@@ -30,8 +30,15 @@ class PatheProvider {
     /**
      * return Movie[]
      */
-    public function getCurrentMovies() {
-        $pageContent = file_get_contents($this->moviesUrl, false, $this->getStreamContext());
+    public function getCurrentMovies($options = array()) {
+
+        $resultingOptions = array_merge(
+            array(
+                'locale' => 20
+            ),
+            $options);
+
+        $pageContent = file_get_contents($this->moviesUrl, false, $this->getStreamContext($resultingOptions));
         $crawler = new Crawler($pageContent);
 
         $movies = array();
@@ -56,10 +63,17 @@ class PatheProvider {
      * @param $url
      * @return Movie
      */
-    public function getMovie($url) {
+    public function getMovie($url, $options = array()) {
+
+        $resultingOptions = array_merge(
+            array(
+                'locale' => 20
+            ),
+            $options);
+
         $movie = new Movie();
 
-        $pageContent = file_get_contents('http://' . $url, false, $this->getStreamContext());
+        $pageContent = file_get_contents('http://' . $url, false, $this->getStreamContext($resultingOptions));
 
         $movie->setPageUrl('http://' . $url);
 
@@ -155,11 +169,11 @@ class PatheProvider {
         return $movie;
     }
 
-    private function getStreamContext () {
+    private function getStreamContext ($options) {
         $opts = array(
             'http' => array(
                 'method' => 'GET',
-                'header' => "Cookie: patheregion=city=20\r\n"
+                'header' => "Cookie: patheregion=city=" . $options['locale'] . "\r\n"
             )
         );
 

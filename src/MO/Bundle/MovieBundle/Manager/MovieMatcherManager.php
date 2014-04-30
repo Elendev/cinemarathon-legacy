@@ -23,7 +23,16 @@ class MovieMatcherManager {
         /* @var $series Serie[] */
         $series = array();
 
+        if(!$movies || count($movies) == 0){
+            return $series;
+        }
+
         foreach($movies as $movie){
+
+            if(!$movie->getPerformances() || count($movie->getPerformances()) == 0){
+                continue;
+            }
+
             foreach($movie->getPerformances() as $performance){
                 $serie = new Serie();
                 $serie->addPerformance($performance);
@@ -80,6 +89,10 @@ class MovieMatcherManager {
         ), $options);
 
         if(in_array($movie, $serie->getMovies())){
+            return false;
+        }
+
+        if(!$movie->getPerformances() || count($movie->getPerformances()) == 0){
             return false;
         }
 
