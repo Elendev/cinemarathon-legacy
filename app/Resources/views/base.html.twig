@@ -17,6 +17,22 @@
 
     </head>
     <body>
+
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{cities[currentCity]}} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            {% for key, city in cities %}
+                                <li><a href="{{path('mo_movie.change_city_locale', {'cityLocale' : key})}}">{{city}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
         <div class="jumbotron">
             <div class="container">
                 <h1>Movie Organizer</h1>

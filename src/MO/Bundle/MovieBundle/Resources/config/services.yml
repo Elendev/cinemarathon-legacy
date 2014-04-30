@@ -19,3 +19,10 @@ services:
 
     mo_movie.manager.movie_matcher:
         class: MO\Bundle\MovieBundle\Manager\MovieMatcherManager
+
+    #Twig extensions
+    mo_movie.twig.locale_extension:
+        class: MO\Bundle\MovieBundle\Twig\LocaleTwigExtension
+        arguments: [@service_container]
+        tags:
+            - { name: twig.extension }

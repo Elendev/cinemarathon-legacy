@@ -7,7 +7,10 @@ use MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class HomeController extends Controller
 {
@@ -15,9 +18,11 @@ class HomeController extends Controller
      * @Route("/", name="mo_movie.movie_list")
      * @Template()
      */
-    public function homeAction()
+    public function homeAction(Request $request)
     {
-        $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies();
+        $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array(
+            'locale' => $this->getCityLocale($request)
+        ));
 
         return array(
             'movies' => $movies,
@@ -34,7 +39,9 @@ class HomeController extends Controller
         $url = $request->query->get('movie_url', null);
 
         if($url){
-            $movie = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($url);
+            $movie = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($url, array(
+                'locale' => $this->getCityLocale($request)
+            ));
         } else {
             $movie = null;
         }
@@ -51,7 +58,7 @@ class HomeController extends Controller
      * @param Request $request
      */
     public function moviesTimelineAction(Request $request){
-        $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies();
+        $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array('locale' => $this->getCityLocale($request)));
 
         $form = $this->createComboForm($movies);
 
@@ -63,10 +70,8 @@ class HomeController extends Controller
         if($form->isValid()){
             $moviesToUse = $form->get('movies')->getData();
 
-            $locale = $form->get('cityLocale')->getData();
-
             foreach($moviesToUse as $movieUrl){
-                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl, array('locale' => $locale));
+                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl, array('locale' => $this->getCityLocale($request)));
             }
 
             $options = array(
@@ -84,7 +89,25 @@ class HomeController extends Controller
         );
     }
 
+    /**
+     * @Route("/changeCity/{cityLocale}", name="mo_movie.change_city_locale")
+     * @param Request $request
+     */
+    public function changeCityAction(Request $request, $cityLocale){
+        if($cityLocale > 23 || $cityLocale < 20){
+            throw $this->createNotFoundException();
+        }
 
+        $cookie = new Cookie('city_locale', $cityLocale);
+        $response = new RedirectResponse($this->generateUrl('mo_movie.movie_list'));
+        $response->headers->setCookie($cookie);
+
+        return $response;
+    }
+
+    private function getCityLocale(Request $request){
+        return $request->cookies->get('city_locale', 20);
+    }
 
     private function createComboForm($movieList){
 
@@ -99,15 +122,9 @@ class HomeController extends Controller
             ->setAction($this->generateUrl('mo_movie.movie_timeline'))
             ->setMethod('GET')
             ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true, 'label' => 'Films'))
-            ->add('cityLocale', 'choice', array('choices' => array(
-                20 => 'Lausanne',
-                23 => 'Genève',
-                21 => 'Berne',
-                22 => 'Bâle'
-            ), 'label' => 'Région'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
-            ->add('submit', 'submit', array('label' => 'GOGOGO' ));
+            ->add('submit', 'submit', array('label' => 'Chercher une correspondance entre les séances' ));
         return $formBuilder->getForm();
     }
 }

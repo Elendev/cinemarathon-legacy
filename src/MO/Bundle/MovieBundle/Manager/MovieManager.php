@@ -31,8 +31,8 @@ class MovieManager {
         return $this->provider->getMovie($url, $options);
     }
 
-    public function getCurrentMovies(){
-        return $this->provider->getCurrentMovies();
+    public function getCurrentMovies($options = array()){
+        return $this->provider->getCurrentMovies($options);
     }
 
 } 
