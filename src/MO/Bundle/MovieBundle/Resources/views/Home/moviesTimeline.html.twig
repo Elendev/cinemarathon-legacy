@@ -19,7 +19,8 @@
         </div>
     </div>
 
-    <h1>S&eacute;ries de films</h1>
+
+    <h1>S&eacute;rie de films</h1>
 
     <div class="row">
         {% for serie in series %}
@@ -28,9 +29,9 @@
                     {% set cinemas = serie.getCinemas() %}
                     {% if cinemas|length == 1 %}
                         {% set performances = serie.getPerformances() %}
-                        <h2>{{cinemas|first}}{% if performances|length == 1 %} - {{performances|first}}{% endif %}</h2>
+                        <h3>{{cinemas|first}}{% if performances|length == 1 %} - {{performances|first}}{% endif %}</h3>
                     {% endif %}
-                    <h3>{{serie.getStartDate()|date('H:i d/m/Y')}} - {{serie.getEndDate()|date('H:i d/m/Y')}}</h3>
+                    <h4>{{serie.getStartDate()|date('H:i d/m/Y')}} - {{serie.getEndDate()|date('H:i d/m/Y')}}</h4>
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -57,5 +58,4 @@
             <h3>Aucun résultat</h3>
         {% endfor %}
     </div>
-
 {% endblock %}

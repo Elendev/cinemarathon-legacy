@@ -67,7 +67,12 @@ class HomeController extends Controller
                 $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl);
             }
 
-            $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList);
+            $options = array(
+                'same_cinema' => $form->get('same_cinema')->getData(),
+                'same_hall' => $form->get('same_hall')->getData(),
+            );
+
+            $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList, $options);
         }
 
         return array(
@@ -92,6 +97,8 @@ class HomeController extends Controller
             ->setAction($this->generateUrl('mo_movie.movie_timeline'))
             ->setMethod('GET')
             ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true))
+            ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
+            ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
             ->add('submit', 'submit', array('label' => 'GOGOGO' ));
         return $formBuilder->getForm();
     }

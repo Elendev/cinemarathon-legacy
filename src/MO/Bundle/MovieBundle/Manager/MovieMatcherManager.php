@@ -19,7 +19,7 @@ class MovieMatcherManager {
      * @param $movies Movie[]
      * @return Serie[]
      */
-    public function getSeries($movies){
+    public function getSeries($movies, $options = array()){
         /* @var $series Serie[] */
         $series = array();
 
@@ -30,7 +30,7 @@ class MovieMatcherManager {
 
                 foreach($movies as $otherMovie){
                     if($otherMovie != $movie){
-                        if($this->addMovie($serie, $otherMovie)){
+                        if($this->addMovie($serie, $otherMovie, $options)){
                             $series[] = $serie;
                         }
                     }
@@ -72,9 +72,9 @@ class MovieMatcherManager {
      * @return boolean true if the movie has been added
      */
     private function addMovie(Serie $serie, Movie $movie, $options = array()){
-        $options = array_merge(array(
+        $resultingOptions = array_merge(array(
             'same_cinema' => true,
-            'same_hall' => true,
+            'same_hall' => false,
             'min_time_between' => 5*60,
             'max_time_between' => 60*60
         ), $options);
@@ -85,7 +85,7 @@ class MovieMatcherManager {
 
         //try to add before or after
         foreach($movie->getPerformances() as $performance){
-            if($this->respectConstraints($serie, $performance, $options)){
+            if($this->respectConstraints($serie, $performance, $resultingOptions)){
                 $serie->addPerformance($performance);
                 return true;
             }
