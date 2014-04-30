@@ -109,20 +109,12 @@ class PatheProvider {
             $startDateString = $date . ' ' . date('Y') . ' ' . $startHour;
             $endDateString = $date . ' ' . date('Y') . ' ' . $endHour;
 
-            $fmt = new \IntlDateFormatter(
-                "fr-FR",
-                \IntlDateFormatter::FULL,
-                \IntlDateFormatter::FULL,
-                'Etc/UTC',
-                \IntlDateFormatter::GREGORIAN,
-                'EEEE, dd MMMM y hh:mm'
-            );
+            $english = array('Jan','Febr','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+            $french = array('janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche');
 
-            $startDate = new \DateTime();
-            $startDate->setTimestamp($fmt->parse($startDateString));
+            $startDate = \DateTime::createFromFormat('D d M Y H:i', str_replace($french, $english, strtolower($startDateString)));
 
-            $endDate = new \DateTime();
-            $endDate->setTimestamp($fmt->parse($endDateString));
+            $endDate = \DateTime::createFromFormat('D d M Y H:i', str_replace($french, $english, strtolower($endDateString)));
 
             if($startDate > $endDate){
                 $endDate->add(new \DateInterval('P1D'));
