@@ -31,9 +31,13 @@ class HomeController extends Controller
      */
     public function movieDetailAction(Request $request)
     {
-        $url = $request->get('movie_url', null);
+        $url = $request->query->get('movie_url', null);
 
-        $movie = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($url);
+        if($url){
+            $movie = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($url);
+        } else {
+            $movie = null;
+        }
 
         return array(
             'url' => $url,
