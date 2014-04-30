@@ -43,7 +43,7 @@ class PatheProvider {
 
             $movie = new Movie();
             $movie->setName($name);
-            $movie->setPageUrl('http://pathe.ch' . $link . '/schedule');
+            $movie->setPageUrl('pathe.ch' . $link . '/schedule');
             $movie->setImageUrl('http://pathe.ch' . $image);
 
             $movies[] = $movie;
@@ -59,9 +59,9 @@ class PatheProvider {
     public function getMovie($url) {
         $movie = new Movie();
 
-        $pageContent = file_get_contents($url, false, $this->getStreamContext());
+        $pageContent = file_get_contents('http://' . $url, false, $this->getStreamContext());
 
-        $movie->setPageUrl($url);
+        $movie->setPageUrl('http://' . $url);
 
         $crawler = new Crawler($pageContent);
 
