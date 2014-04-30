@@ -1,3 +1,0 @@
-mo_movie_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: MOMovieBundle:Default:index }

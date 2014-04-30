@@ -7,6 +7,7 @@ use MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ class HomeController extends Controller
 {
     /**
      * @Route("/", name="mo_movie.movie_list")
+     * @Cache(public=true, vary={"Cookie"}, expires="tomorrow")
      * @Template()
      */
     public function homeAction(Request $request)
@@ -32,6 +34,7 @@ class HomeController extends Controller
 
     /**
      * @Route("/movieDetail", name="mo_movie.movie_detail")
+     * @Cache(public=true, vary={"Cookie"}, expires="tomorrow")
      * @Template()
      */
     public function movieDetailAction(Request $request)
@@ -54,6 +57,7 @@ class HomeController extends Controller
 
     /**
      * @Route("/movieTimeline", name="mo_movie.movie_timeline")
+     * @Cache(public=true, vary={"Cookie"}, expires="tomorrow")
      * @Template()
      * @param Request $request
      */
