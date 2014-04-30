@@ -54,6 +54,7 @@ class HomeController extends Controller
         $form->handleRequest($request);
 
         $movieList = array();
+        $series = array();
 
         if($form->isValid()){
             $moviesToUse = $form->get('movies')->getData();
@@ -61,11 +62,14 @@ class HomeController extends Controller
             foreach($moviesToUse as $movieUrl){
                 $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl);
             }
+
+            $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList);
         }
 
         return array(
             'form' => $form->createView(),
-            'movies' => $movieList
+            'movies' => $movieList,
+            'series' => $series
         );
     }
 
@@ -80,7 +84,7 @@ class HomeController extends Controller
             $movieArray[$movie->getPageUrl()] = $movie->getName();
         }
 
-        $formBuilder = $this->createFormBuilder()
+        $formBuilder = $this->createFormBuilder(null, array('csrf_protection' => false))
             ->setAction($this->generateUrl('mo_movie.movie_timeline'))
             ->setMethod('GET')
             ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true))

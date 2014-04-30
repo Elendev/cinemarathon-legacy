@@ -32,6 +32,8 @@ class Performance {
 
     private $kind = self::KIND_STANDARD;
 
+    private $version;
+
     /**
      * @var Hall
      */
@@ -137,5 +139,22 @@ class Performance {
     {
         return $this->cinema;
     }
+
+    /**
+     * @param mixed $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
 
 } 

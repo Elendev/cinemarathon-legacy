@@ -142,8 +142,13 @@ class PatheProvider {
 
         $crawler->filter('.movie-time .movie-specific .time-table')->each(function(Crawler $crawler, $i) use ($performancesCop){
             $cop = $crawler->filter('.cluetip')->attr('cop');
-            $version = $crawler->filter('abbr')->text();
-            $kind = trim($crawler->filter('.cluetip strong')->text());
+            if($crawler->filter('abbr')->count() > 0){
+                $version = $crawler->filter('abbr')->text();
+            }
+
+            if($crawler->filter('.cluetip strong')->count() > 0){
+                $kind = trim($crawler->filter('.cluetip strong')->text());
+            }
 
             /* @var $performance Performance */
             $performance = $performancesCop[$cop];
@@ -152,6 +157,7 @@ class PatheProvider {
                 $performance->setKind(Performance::KIND_3D);
             }
 
+            $performance->setVersion($version);
         });
 
         return $movie;
