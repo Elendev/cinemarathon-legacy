@@ -128,7 +128,7 @@ class HomeController extends Controller
             ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true, 'label' => 'Films'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
-            ->add('submit', 'submit', array('label' => 'Chercher une correspondance entre les séances' ));
+            ->add('submit', 'submit', array('label' => 'Chercher une correspondance' ));
         return $formBuilder->getForm();
     }
 }
