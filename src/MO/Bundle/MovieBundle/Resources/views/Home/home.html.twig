@@ -21,7 +21,7 @@
         <div class="panel-body">
             <div class="row">
                 {% for movie in movies %}
-                    <div class="col-xs-2 .col-sm-3 movie">
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 movie">
                         <a href="{{path('mo_movie.movie_detail', {'movie_url': movie.pageUrl})}}">
                             <div class="thumbnail">
                                 <h5>{{movie.name}}</h5>
