@@ -31,7 +31,7 @@
                         {% set performances = serie.getPerformances() %}
                         <h3>{{cinemas|first}}{% if performances|length == 1 %} - {{performances|first}}{% endif %}</h3>
                     {% endif %}
-                    <h4>{{serie.getStartDate()|date('H:i d/m/Y')}} - {{serie.getEndDate()|date('H:i d/m/Y')}}</h4>
+                    <h4>{{serie.getStartDate()|date('H\\hi d/m/Y')}} - {{serie.getEndDate()|date('H\\hi d/m/Y')}}</h4>
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -45,7 +45,7 @@
                                         <div class="col-xs-9 col-sm-9 col-md-9">
                                             <h4><a href="{{performance.movie.pageUrl}}" target="_blank">{{performance.movie.name}} {{performance.version}}{% if performance.kind == '3D'%} 3D{% endif %}</a></h4>
                                             <h4>{{performance.cinema.name}} {{performance.hall.name}}</h4>
-                                            <h5>{{performance.startDate|date('H:i d/m/Y')}} - {{performance.endDate|date('H:i d/m/Y')}}</h5>
+                                            <h5>{{performance.startDate|date('H\\hi d/m/Y')}} - {{performance.endDate|date('H\\hi d/m/Y')}}</h5>
                                         </div>
                                     </div>
                                 </div>
