@@ -11,10 +11,24 @@ namespace MO\Bundle\MovieBundle\MovieDataProviders;
 
 use MO\Bundle\MovieBundle\Model\Cinema;
 use MO\Bundle\MovieBundle\Model\Hall;
+use MO\Bundle\MovieBundle\Model\Movie;
 
 class CinemaPool {
 
     private $cinemas = array();
+
+    /**
+     * @param $movies Movie[]
+     * Update cinema references in case of cache reload
+     */
+    public function updateMovies($movies){
+        foreach($movies as $movie){
+            foreach($movie->getPerformances() as $performance){
+                $performance->setCinema($this->getCinema($performance->getCinema()->getName()));
+                $performance->setHall($this->getHall($performance->getCinema(), $performance->getHall()->getName()));
+            }
+        }
+    }
 
     /**
      * @param $name

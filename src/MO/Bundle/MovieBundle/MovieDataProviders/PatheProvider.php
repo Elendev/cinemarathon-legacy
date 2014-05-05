@@ -9,8 +9,11 @@
 namespace MO\Bundle\MovieBundle\MovieDataProviders;
 
 
+use Doctrine\Common\Cache\CacheProvider;
 use MO\Bundle\MovieBundle\Model\Movie;
 use MO\Bundle\MovieBundle\Model\Performance;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Constraints\DateTime;
 
@@ -23,8 +26,21 @@ class PatheProvider {
      */
     private $cinemaPool;
 
-    public function __construct(CinemaPool $cinemaPool){
+    /**
+     * @var \Doctrine\Common\Cache\CacheProvider
+     */
+    private $cache;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(CinemaPool $cinemaPool, CacheProvider $cache, LoggerInterface $logger = null){
         $this->cinemaPool = $cinemaPool;
+        $this->cache = $cache;
+
+        $this->logger = $logger ? $logger : new NullLogger();
     }
 
     /**
@@ -37,6 +53,16 @@ class PatheProvider {
                 'locale' => 20
             ),
             $options);
+
+        $cacheEntry = 'pathe_movies_' . $resultingOptions['locale'];
+
+        //try the cache
+        if($this->cache->contains($cacheEntry)) {
+            $movies = $this->cache->fetch($cacheEntry);
+            $this->logger->debug('Cache ok for movies ' . $cacheEntry, $resultingOptions);
+            $this->cinemaPool->updateMovies($movies);
+            return $movies;
+        }
 
         $pageContent = file_get_contents($this->moviesUrl, false, $this->getStreamContext($resultingOptions));
         $crawler = new Crawler($pageContent);
@@ -56,6 +82,11 @@ class PatheProvider {
             $movies[] = $movie;
         });
 
+        //save in cache
+        $this->cache->save($cacheEntry, $movies, strtotime('tomorrow') - time());
+
+        $this->logger->debug('Cache saved for movies ' . $cacheEntry, $resultingOptions);
+
         return $movies;
     }
 
@@ -70,6 +101,15 @@ class PatheProvider {
                 'locale' => 20
             ),
             $options);
+
+        $cacheEntry = 'pathe_movie_' . $resultingOptions['locale'] . '_' . $url;
+
+        if($this->cache->contains($cacheEntry)){
+            $movie = $this->cache->fetch($cacheEntry);
+            $this->logger->debug('Cache ok for movie ' . $cacheEntry, $resultingOptions);
+            $this->cinemaPool->updateMovies(array($movie));
+            return $movie;
+        }
 
         $movie = new Movie();
 
@@ -166,7 +206,30 @@ class PatheProvider {
             $performance->setVersion($version);
         });
 
+        $this->cache->save($cacheEntry, $movie, strtotime('tomorrow') - time());
+        $this->logger->debug('Cache saved for movie ' . $cacheEntry, $resultingOptions);
+
         return $movie;
+    }
+
+    /**
+     * Go through every movies to upload the cache
+     */
+    public function updateCache($locales = null) {
+
+        if($locales == null){
+            $locales = array(20, 21, 22, 23);
+        }
+
+        $this->cache->flushAll();
+
+        foreach($locales as $locale){
+            $movies = $this->getCurrentMovies(array('locale' => $locale));
+            foreach($movies as $movie){
+                $this->getMovie($movie->getPageUrl(), array('locale' => $locale));
+            }
+        }
+
     }
 
     private function getStreamContext ($options) {

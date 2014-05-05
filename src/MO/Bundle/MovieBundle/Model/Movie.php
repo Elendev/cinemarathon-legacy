@@ -20,7 +20,7 @@ class Movie {
     /**
      * @var Performance[]
      */
-    private $performances;
+    private $performances = array();
 
     /**
      * @param mixed $name

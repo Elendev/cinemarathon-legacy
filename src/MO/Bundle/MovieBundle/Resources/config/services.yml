@@ -12,7 +12,7 @@ services:
 
     mo_movie.provider.pathe:
         class: MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider
-        arguments: [@mo_movie.pool.cinema]
+        arguments: [@mo_movie.pool.cinema, @mo_movie.cache.movie_cache]
 
     mo_movie.pool.cinema:
         class: MO\Bundle\MovieBundle\MovieDataProviders\CinemaPool
@@ -26,3 +26,10 @@ services:
         arguments: [@service_container]
         tags:
             - { name: twig.extension }
+
+
+
+    #Movie cache
+    mo_movie.cache.movie_cache:
+        class: Doctrine\Common\Cache\FilesystemCache
+        arguments: ["%kernel.cache_dir%/mo/movie_cache"]
