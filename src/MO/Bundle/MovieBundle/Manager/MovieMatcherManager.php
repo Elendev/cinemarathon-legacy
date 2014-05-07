@@ -9,143 +9,219 @@
 namespace MO\Bundle\MovieBundle\Manager;
 
 
+use Doctrine\Common\Cache\CacheProvider;
 use MO\Bundle\MovieBundle\Model\Movie;
 use MO\Bundle\MovieBundle\Model\Performance;
+use MO\Bundle\MovieBundle\Model\PerformancesTreeNode;
+use MO\Bundle\MovieBundle\Model\PerformanceTreeNodeVisitor;
 use MO\Bundle\MovieBundle\Model\Serie;
+use MO\Bundle\MovieBundle\Model\SeriePerformancesConstraint;
 
 class MovieMatcherManager {
 
     /**
-     * @param $movies Movie[]
-     * @return Serie[]
+     * @var MovieManager
      */
-    public function getSeries($movies, $options = array()){
-        /* @var $series Serie[] */
-        $series = array();
-
-        if(!$movies || count($movies) == 0){
-            return $series;
-        }
-
-        foreach($movies as $movie){
-
-            if(!$movie->getPerformances() || count($movie->getPerformances()) == 0){
-                continue;
-            }
-
-            foreach($movie->getPerformances() as $performance){
-                $serie = new Serie();
-                $serie->addPerformance($performance);
-
-                foreach($movies as $otherMovie){
-                    if($otherMovie != $movie){
-                        if($this->addMovie($serie, $otherMovie, $options)){
-                            $series[] = $serie;
-                        }
-                    }
-                }
-            }
-        }
-
-        //clean series
-        $orderedSeries = array();
-        foreach($series as $serie){
-            $orderedSeries[$serie->getStartDate()->getTimestamp() . $serie->getEndDate()->getTimestamp()] = $serie;
-        }
-
-        ksort($orderedSeries);
-
-        return $orderedSeries;
-    }
+    private $movieManager;
 
     /**
-     * @param Movie $movie
-     * @return Performance[]
+     * @var \Doctrine\Common\Cache\CacheProvider
      */
-    private function getPerformancesArray(Movie $movie){
-        $performances = array();
-
-        foreach($movie->getPerformances() as $performance){
-            $performances[$performance->getStartDate()->getTimestamp()] = $performance;
-        }
-
-        ksort($performance);
-        return $performances;
-    }
+    private $cache;
 
     /**
-     * Try to add a movie to the given serie
-     * $constraints : time between performances, same hall, etc
-     * @param Serie $serie
-     * @param Movie $movie
-     * @return boolean true if the movie has been added
+     * @var array
      */
-    private function addMovie(Serie $serie, Movie $movie, $options = array()){
-        $resultingOptions = array_merge(array(
+    private $defaultOptions;
+
+    /**
+     * @var PerformancesTreeNode
+     */
+    private $allPerformancesTreeNodes = array();
+
+    public function __construct(MovieManager $movieManager, CacheProvider $cache){
+        $this->movieManager = $movieManager;
+        $this->cache = $cache;
+
+        $this->defaultOptions = array(
+            'locale' => 20,
             'same_cinema' => true,
             'same_hall' => false,
             'min_time_between' => 5*60,
-            'max_time_between' => 60*60
-        ), $options);
+            'max_time_between' => 60*60,
+            'serie_min_size' => 2,
+            'serie_max_size' => 10
+        );
+    }
 
-        if(in_array($movie, $serie->getMovies())){
-            return false;
+    /**
+     * @param $requiredMovies Movie[] movies that need to appear
+     * @return Serie[]
+     */
+    public function getSeries($requiredMovies, $options){
+
+        $options = $this->getOptions($options);
+
+        /* @var $series Serie[] */
+        $series = array();
+
+        if(empty($requiredMovies)){
+            return $series;
         }
 
-        if(!$movie->getPerformances() || count($movie->getPerformances()) == 0){
-            return false;
-        }
+        /*$lessPerformancesMovie = $requiredMovies[0];
+        foreach($requiredMovies as $movie){
+            if(count($movie->getPerformances()) == 0){
+                return $series;
+            } else if(count($lessPerformancesMovie->getPerformances()) > count($movie->getPerformances())){
+                $lessPerformancesMovie = $movie;
+            }
+        }*/
 
-        //try to add before or after
-        foreach($movie->getPerformances() as $performance){
-            if($this->respectConstraints($serie, $performance, $resultingOptions)){
-                $serie->addPerformance($performance);
-                return true;
+        foreach($requiredMovies as $movie){
+            foreach($movie->getPerformances() as $performance){
+                $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options));
             }
         }
 
-        return false;
+
+        ksort($series);
+
+        return $series;
+    }
+
+    /**
+     * @return Serie[]
+     */
+    private function createSeriesForPerformance(Performance $performance, $requiredMovies = array(), $options = array()){
+
+        $series = array();
+
+        $performancesTreeNode = $this->getAllPerformancesTreeNode($options);
+
+        //echo $performancesTreeNode;
+        //die();
+
+        $options = $this->getOptions($options);
+
+        $minSize = $options['serie_min_size'];
+        $maxSize = $options['serie_max_size'];
+
+        $requiredCount = count($requiredMovies);
+
+        $seriesToComplete = array();
+        $seriesToComplete[0] = array(
+            'lookBack' => false,
+            'serie' => new Serie()
+        );
+        $seriesToComplete[0]['serie']->addPerformance($performance);
+
+        $constraint = new SeriePerformancesConstraint($options);
+
+        while(!empty($seriesToComplete)){
+            $nextSerie = array_pop($seriesToComplete);
+
+            $continue = true;
+            $lookBack = $nextSerie['lookBack']; //nothing after : look back
+
+            /* @var $serie Serie */
+            $serie = $nextSerie['serie'];
+            //$loop = 0;
+            do{
+
+                //echo "<hr>serie from " . $serie->getStartDate()->format('Y-m-d H:i:s'). " to " . $serie->getEndDate()->format('Y-m-d H:i:s'). "<hr>";
+                $ptnv = $this->createPerformancesTreeNodeVisitor($serie, $constraint, $options, $lookBack);
+
+                $performancesTreeNode->visit($ptnv);
+                //echo "Did find " . count($ptnv->getPerformances()) . " performances<hr>";
+
+                if(count($ptnv->getPerformances()) == 1){
+                    $serie->addPerformance(array_values($ptnv->getPerformances())[0]);
+                } else if(count($ptnv->getPerformances()) > 1){
+                    $currentPerformances = $serie->getPerformances();
+                    $perfs = $ptnv->getPerformances();
+
+                    $serie->addPerformance(array_shift($perfs));
+
+                    foreach($perfs as $perf){
+                        $newSerie = new Serie();
+                        $newSerie->setPerformances(array_merge($currentPerformances, array($perf)));
+                        $seriesToComplete[] = array(
+                            'lookBack' => $lookBack,
+                            'serie' => $newSerie
+                        );
+                    }
+                } else {
+                    if(!$lookBack){
+                        $lookBack = true;
+                    } else {
+                        $continue = false;
+                    }
+                }
+                //echo "<hr>Loop : " . $loop ++ . " - serie performances size : " . count($serie->getPerformances()) . " - " . $maxSize;
+            }while($continue && count($serie->getPerformances()) < $maxSize);
+
+            if(count($serie->getPerformances()) >= $minSize && count(array_intersect($serie->getMovies(), $requiredMovies)) == $requiredCount){
+                $series[$serie->getSignature()] = $serie;
+            }
+        }
+
+        return $series;
     }
 
     /**
      * @param Serie $serie
-     * @param Movie $movie
-     * @param $options
-     * @return boolean true if the constraints are respected
+     * @param $constraints
+     * @return PerformanceTreeNodeVisitor
      */
-    private function respectConstraints(Serie $serie, Performance $performance, $options){
-        if(count($serie->getPerformances()) == 0){
-            return true;
+    private function createPerformancesTreeNodeVisitor(Serie $serie, SeriePerformancesConstraint $constraint, $options, $reverseOrder = false){
+        if($reverseOrder) {
+            $timestamp = $serie->getStartDate()->getTimestamp();
+            $fromTime = $timestamp - $options['max_time_between'];
+            $toTime = $timestamp - $options['min_time_between'];
+        } else {
+            $timestamp = $serie->getEndDate()->getTimestamp();
+            $fromTime = $timestamp + $options['min_time_between'];
+            $toTime = $timestamp + $options['max_time_between'];
         }
 
-        if(in_array($performance->getMovie(), $serie->getMovies())){
-            return false;
-        }
+        return new PerformanceTreeNodeVisitor($fromTime,
+            $toTime,
+            $reverseOrder,
+            function(Performance $performance) use ($serie, $constraint){
+                return $constraint->respectConstraints($serie, $performance);
+            }
+        );
+    }
 
-        if($options['same_cinema']){
-            $cinemas = $serie->getCinemas();
+    /**
+     * @return PerformancesTreeNode
+     */
+    private function getAllPerformancesTreeNode($options){
+        $locale = $options['locale'];
+        $key = 'movie_matcher_manager_performances_treenode_all_' . $locale;
 
-            if(count($cinemas) > 1 || $performance->getCinema() != $cinemas[0]){
-                return false;
+        if(!array_key_exists($locale, $this->allPerformancesTreeNodes)){
+            if($this->cache->contains($key)){
+                $this->allPerformancesTreeNodes[$locale] = $this->cache->fetch($key);
+            } else {
+                //get all performances for all movies
+                $performances = array();
+
+                foreach($this->movieManager->getCurrentMoviesWithPerformances($options) as $movie){
+                    $performances = array_merge($performances, $movie->getPerformances());
+                }
+                $performancesTreeNode = new PerformancesTreeNode($performances);
+                $this->allPerformancesTreeNodes[$locale] = $performancesTreeNode;
+
+                $this->cache->save($key, $performancesTreeNode, strtotime('tomorrow') - time());
             }
         }
 
-        if($options['same_hall']) {
-            $halls = $serie->getHalls();
+        return $this->allPerformancesTreeNodes[$locale];
+    }
 
-            if(count($halls) > 1 || $performance->getHall() != $halls[0]){
-                return false;
-            }
-        }
-
-        if($serie->getStartDate() > $performance->getEndDate()) {
-            $diff = $serie->getStartDate()->getTimestamp() - $performance->getEndDate()->getTimestamp();
-        } else if($serie->getEndDate() < $performance->getStartDate()){
-            $diff = $performance->getStartDate()->getTimestamp() - $serie->getEndDate()->getTimestamp();
-        } else { // in between
-            return false;
-        }
-
-        return $diff >= $options['min_time_between'] && $diff <= $options['max_time_between'];
+    private function getOptions($options){
+        return array_merge($this->defaultOptions, $options);
     }
 } 

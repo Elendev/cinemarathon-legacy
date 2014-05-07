@@ -13,7 +13,7 @@ use MO\Bundle\MovieBundle\Model\Movie;
 use MO\Bundle\MovieBundle\Model\Performance;
 use MO\Bundle\MovieBundle\Model\Serie;
 
-class MovieMatcherManager {
+class MovieMatcherManagerBruteforce {
 
     /**
      * @param $movies Movie[]

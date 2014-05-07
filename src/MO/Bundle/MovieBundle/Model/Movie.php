@@ -92,4 +92,12 @@ class Movie {
     {
         return $this->pageUrl;
     }
+
+    public function equalsTo(Movie $movie){
+        return $movie->getPageUrl() == $this->pageUrl;
+    }
+
+    public function __toString(){
+        return $this->pageUrl;
+    }
 } 

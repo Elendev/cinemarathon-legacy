@@ -16,6 +16,8 @@ class Serie {
      */
     private $performances = array();
 
+    private $signature;
+
     /**
      * @param \MO\Bundle\MovieBundle\Model\Performance[] $performances
      */
@@ -28,11 +30,15 @@ class Serie {
         }
 
         ksort($this->performances);
+
+        $this->signature = null;
     }
 
     public function addPerformance(Performance $performance){
         $this->performances[$performance->getStartDate()->getTimestamp()] = $performance;
         ksort($this->performances);
+
+        $this->signature = null;
     }
 
     /**
@@ -72,9 +78,7 @@ class Serie {
         $cinemas = array();
 
         foreach($this->performances as $performance){
-            if(!in_array($performance->getCinema(), $cinemas)){
-                $cinemas[] = $performance->getCinema();
-            }
+            $cinemas[$performance->getCinema()->getName()] = $performance->getCinema();
         }
 
         return $cinemas;
@@ -88,7 +92,7 @@ class Serie {
 
         foreach($this->performances as $performance){
             if(!in_array($performance->getHall(), $halls)){
-                $halls[] = $performance->getHall();
+                $halls[$performance->getCinema()->getName() . $performance->getHall()->getName()] = $performance->getHall();
             }
         }
         return $halls;
@@ -101,10 +105,35 @@ class Serie {
         $movies = array();
 
         foreach($this->performances as $performance){
-            if(!in_array($performance->getMovie(), $movies)){
-                $movies[] = $performance->getMovie();
+            $movies[$performance->getMovie()->getName()] = $performance->getMovie();
+        }
+        return array_values($movies);
+    }
+
+    public function containsMovie(Movie $movie){
+        foreach($this->performances as $performance){
+            if($performance->getMovie()->equalsTo($movie)){
+                return true;
             }
         }
-        return $movies;
+        return false;
+    }
+
+    /**
+     * Return a signature begining by the startDate (for order purpose)
+     */
+    public function getSignature(){
+
+        if(empty($this->signature)){
+            $signature = '';
+
+            foreach($this->performances as $performance){ //performances is ordered => signature valid
+                $signature .= $performance->getMovie()->getName();
+            }
+
+            $this->signature = $this->getStartDate()->getTimestamp() . $this->getEndDate()->getTimestamp() . md5($signature);
+        }
+
+        return $this->signature;
     }
 } 

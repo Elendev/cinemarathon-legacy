@@ -32,6 +32,11 @@ class PatheProvider {
     private $cache;
 
     /**
+     * @var Movie[]
+     */
+    private $movies = array();
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -69,7 +74,7 @@ class PatheProvider {
 
         $movies = array();
 
-        $crawler->filter('.movie-overview .row > div')->each(function(Crawler $node, $i) use(&$movies){
+        $crawler->filter('.movie-overview .row > div')->each(function(Crawler $node, $i) use(&$movies, $resultingOptions){
             $image = $node->filter('img')->attr('src');
             $link = $node->filter('a')->attr('href');
             $name = $node->filter('span > strong')->text();
@@ -84,9 +89,35 @@ class PatheProvider {
 
         //save in cache
         $this->cache->save($cacheEntry, $movies, strtotime('tomorrow') - time());
-
         $this->logger->debug('Cache saved for movies ' . $cacheEntry, $resultingOptions);
 
+
+        return $movies;
+    }
+
+    /**
+     * @param array $options
+     * @return array|Movie[]
+     * Return all movies with performances
+     */
+    public function getCurrentMoviesWithPerformances($options = array()){
+        $resultingOptions = array_merge(
+            array(
+                'locale' => 20
+            ),
+            $options);
+
+        if(array_key_exists($resultingOptions['locale'], $this->movies)){
+            return $this->movies[$resultingOptions['locale']];
+        }
+
+        $movies = array();
+
+        foreach($this->getCurrentMovies($options) as $movie){
+            $movies[$movie->getPageUrl()] = $this->getMovie($movie->getPageUrl(), $options);
+        }
+
+        $this->movies[$resultingOptions['locale']] = $movies;
         return $movies;
     }
 
@@ -101,6 +132,10 @@ class PatheProvider {
                 'locale' => 20
             ),
             $options);
+
+        if(array_key_exists($resultingOptions['locale'], $this->movies) && array_key_exists($url, $this->movies[$resultingOptions['locale']])){
+            return $this->movies[$resultingOptions['locale']];
+        }
 
         $cacheEntry = 'pathe_movie_' . $resultingOptions['locale'] . '_' . $url;
 

@@ -32,7 +32,6 @@ class PerformancesTreeNode {
      * @param int $formatterIndex
      */
     public function __construct($performances, $value = null, $formatterIndex = -1){
-        $this->performances = $performances;
         $this->formatterIndex = $formatterIndex;
         $this->value = $value;
 
@@ -49,11 +48,19 @@ class PerformancesTreeNode {
 
         $visitor->visit($this);
 
-        if(count($this->childs) > 0){
-            $formatter = self::$formatters[$this->formatterIndex + 1];
-            $startId = $visitor->getStartDate()->format($formatter);
-            $endId = $visitor->getEndDate()->format($formatter);
+        if(empty($this->childs)){
+            return;
+        }
 
+        $formatter = self::$formatters[$this->formatterIndex + 1];
+        $startId = $visitor->getStartDate()->format($formatter);
+        $endId = $visitor->getEndDate()->format($formatter);
+
+        if($startId == $endId){
+            if(array_key_exists($startId, $this->childs)){
+                $this->childs[$startId]->visit($visitor);
+            }
+        } else {
             foreach($this->childs as $key => $child){
                 if($key >= $startId && $key <= $endId){
                     $child->visit($visitor);
@@ -94,6 +101,19 @@ class PerformancesTreeNode {
         return $this->formatterIndex;
     }
 
+    public function __toString(){
+        $txt = "<ul><li> formatter : " . ($this->formatterIndex == -1 ? 'root' : self::$formatters[$this->formatterIndex]) . " - " . $this->getValue() . " - performances : " . count($this->performances);
+        $txt .= "<ul>";
+
+        foreach($this->childs as $child){
+            $txt .= $child;
+        }
+
+        $txt .= "</ul></li></ul>";
+
+        return $txt;
+    }
+
     /**
      * @param $performances Performance[]
      */
@@ -104,7 +124,7 @@ class PerformancesTreeNode {
 
         foreach($performances as $performance){
             $childId = $performance->getStartDate()->format(self::$formatters[$fIndex]);
-            $childPerfs[$childId] = $performance;
+            $childPerfs[$childId][] = $performance;
         }
 
         foreach($childPerfs as $childId => $childPerformances){

@@ -35,4 +35,7 @@ class MovieManager {
         return $this->provider->getCurrentMovies($options);
     }
 
+    public function getCurrentMoviesWithPerformances($options = array()){
+        return $this->provider->getCurrentMoviesWithPerformances($options);
+    }
 } 

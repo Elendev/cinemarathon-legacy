@@ -79,6 +79,7 @@ class HomeController extends Controller
             }
 
             $options = array(
+                'locale' => $this->getCityLocale($request),
                 'same_cinema' => $form->get('same_cinema')->getData(),
                 'same_hall' => $form->get('same_hall')->getData()
             );
