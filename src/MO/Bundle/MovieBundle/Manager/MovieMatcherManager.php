@@ -50,7 +50,7 @@ class MovieMatcherManager {
             'min_time_between' => 5*60,
             'max_time_between' => 60*60,
             'serie_min_size' => 2,
-            'serie_max_size' => 10
+            'serie_max_size' => 3
         );
     }
 
@@ -127,7 +127,7 @@ class MovieMatcherManager {
             /* @var $serie Serie */
             $serie = $nextSerie['serie'];
             //$loop = 0;
-            do{
+            while($continue && count($serie->getPerformances()) < $maxSize){
 
                 //echo "<hr>serie from " . $serie->getStartDate()->format('Y-m-d H:i:s'). " to " . $serie->getEndDate()->format('Y-m-d H:i:s'). "<hr>";
                 $ptnv = $this->createPerformancesTreeNodeVisitor($serie, $constraint, $options, $lookBack);
@@ -159,7 +159,7 @@ class MovieMatcherManager {
                     }
                 }
                 //echo "<hr>Loop : " . $loop ++ . " - serie performances size : " . count($serie->getPerformances()) . " - " . $maxSize;
-            }while($continue && count($serie->getPerformances()) < $maxSize);
+            };
 
             if(count($serie->getPerformances()) >= $minSize && count(array_intersect($serie->getMovies(), $requiredMovies)) == $requiredCount){
                 $series[$serie->getSignature()] = $serie;
