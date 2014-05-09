@@ -18,7 +18,11 @@ class SeriePerformancesConstraint {
             'same_cinema' => true,
             'same_hall' => false,
             'min_time_between' => 5*60,
-            'max_time_between' => 60*60
+            'max_time_between' => 60*60,
+            'start_time_min' => 0,
+            'start_time_max' => 60*60*24,
+            'end_time_min' => 0,
+            'end_time_max' => 60*60*24
         ), $constraints);
     }
 
@@ -55,6 +59,17 @@ class SeriePerformancesConstraint {
                 return false;
             }
         }
+
+        /*$dayStart = strtotime('midnight');
+        $startTime = $performance->getStartDate()->getTimestamp() - $dayStart;
+        $endTime = $performance->getEndDate()->getTimestamp() - $dayStart;
+
+        if($startTime < $this->constraints['start_time_min'] ||
+            $startTime > $this->constraints['start_time_max'] ||
+            $endTime < $this->constraints['end_time_min'] ||
+            $endTime > $this->constraints['end_time_max']){
+            return false;
+        }*/
 
         if($serie->getStartDate() > $performance->getEndDate()) {
             $diff = $serie->getStartDate()->getTimestamp() - $performance->getEndDate()->getTimestamp();

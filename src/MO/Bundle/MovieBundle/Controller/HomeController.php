@@ -81,7 +81,9 @@ class HomeController extends Controller
             $options = array(
                 'locale' => $this->getCityLocale($request),
                 'same_cinema' => $form->get('same_cinema')->getData(),
-                'same_hall' => $form->get('same_hall')->getData()
+                'same_hall' => $form->get('same_hall')->getData(),
+                'min_time_between' => $form->get('min_time_between')->getData(),
+                'max_time_between' => $form->get('max_time_between')->getData()
             );
 
             $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList, $options);
@@ -123,12 +125,19 @@ class HomeController extends Controller
             $movieArray[$movie->getPageUrl()] = $movie->getName();
         }
 
+        $timeList = array();
+        for($i = 5; $i <= 120; $i += 5) {
+            $timeList[$i * 60] = $i . ' minutes';
+        }
+
         $formBuilder = $this->createFormBuilder(null, array('csrf_protection' => false))
             ->setAction($this->generateUrl('mo_movie.movie_timeline'))
             ->setMethod('GET')
             ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true, 'label' => 'Films'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
+            ->add('min_time_between', 'choice', array('label' => 'Temps min. entre séances', 'choices' => $timeList, 'data' => 10 * 60))
+            ->add('max_time_between', 'choice', array('label' => 'Temps max. entre séances', 'choices' => $timeList, 'data' => 30*60))
             ->add('submit', 'submit', array('label' => 'Chercher une correspondance' ));
         return $formBuilder->getForm();
     }

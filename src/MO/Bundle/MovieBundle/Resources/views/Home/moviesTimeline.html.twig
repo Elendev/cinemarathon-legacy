@@ -28,11 +28,60 @@
 
 
     <div class="row">
-        {% for serie in series %}
-            {{ serieMacro.displaySerie(serie) }}
+        {% if series|length > 10 %}
+            {% set previousDate = null %}
+
+            <div class="panel-group" id="accordion">
+
+                {% for serie in series %}
+                    {% set dateItem = serie.startDate|date('d/m/y') %}
+
+                    {% if loop.first %}
+                        {% set previousDate = dateItem %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ loop.index }}">
+                                        {{ dateItem }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_{{ loop.index }}" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    {{ serieMacro.displaySerie(serie) }}
+                    {% elseif dateItem != previousDate %}
+                        {% set previousDate = dateItem %}
+                                 </div>
+                             </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_{{ loop.index }}">
+                                        {{ dateItem }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_{{ loop.index }}" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    {{ serieMacro.displaySerie(serie) }}
+                    {% else %}
+                        {{ serieMacro.displaySerie(serie) }}
+                    {% endif %}
+                {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         {% else %}
-            <h3>Aucun résultat</h3>
-        {% endfor %}
+            {% for serie in series %}
+                {{ serieMacro.displaySerie(serie) }}
+            {% else %}
+                <h3>Aucun résultat</h3>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}
 

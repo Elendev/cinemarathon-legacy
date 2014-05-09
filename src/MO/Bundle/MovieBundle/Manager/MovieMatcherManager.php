@@ -50,7 +50,11 @@ class MovieMatcherManager {
             'min_time_between' => 5*60,
             'max_time_between' => 60*60,
             'serie_min_size' => 2,
-            'serie_max_size' => 3
+            'serie_max_size' => 3,
+            'start_time_min' => 0,
+            'start_time_max' => 60*60*24,
+            'end_time_min' => 0,
+            'end_time_max' => 60*60*24
         );
     }
 
