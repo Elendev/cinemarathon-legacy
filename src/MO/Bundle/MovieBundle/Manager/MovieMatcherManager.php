@@ -16,6 +16,7 @@ use MO\Bundle\MovieBundle\Model\PerformancesTreeNode;
 use MO\Bundle\MovieBundle\Model\PerformanceTreeNodeVisitor;
 use MO\Bundle\MovieBundle\Model\Serie;
 use MO\Bundle\MovieBundle\Model\SeriePerformancesConstraint;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class MovieMatcherManager {
 
@@ -39,9 +40,16 @@ class MovieMatcherManager {
      */
     private $allPerformancesTreeNodes = array();
 
-    public function __construct(MovieManager $movieManager, CacheProvider $cache){
+    /**
+     * @var Stopwatch
+     */
+    private $stopWatch;
+
+    public function __construct(MovieManager $movieManager, CacheProvider $cache, Stopwatch $stopwatch = null){
         $this->movieManager = $movieManager;
         $this->cache = $cache;
+
+        $this->stopWatch = $stopwatch;
 
         $this->defaultOptions = array(
             'locale' => 20,
@@ -51,10 +59,12 @@ class MovieMatcherManager {
             'max_time_between' => 60*60,
             'serie_min_size' => 2,
             'serie_max_size' => 3,
-            'start_time_min' => 0,
+            'start_time_min' => 17*60*60,
             'start_time_max' => 60*60*24,
             'end_time_min' => 0,
-            'end_time_max' => 60*60*24
+            'end_time_max' => 60*60*24,
+            'date_min' => null,
+            'date_max' => null
         );
     }
 
@@ -64,32 +74,37 @@ class MovieMatcherManager {
      */
     public function getSeries($requiredMovies, $options){
 
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->start('getSeries', 'MovieMatcherManager');
+        }
+
         $options = $this->getOptions($options);
 
         /* @var $series Serie[] */
         $series = array();
 
-        if(empty($requiredMovies)){
-            return $series;
+        if(!empty($requiredMovies)) {
+
+            $constraint = new SeriePerformancesConstraint($options);
+
+            foreach($requiredMovies as $movie){
+                foreach($movie->getPerformances() as $performance){
+                    if($constraint->performanceRespectConstraint($performance, $options)){
+                        $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options, $constraint));
+                    }
+                }
+            }
+
+            if(null !== $this->stopWatch) {
+                $this->stopWatch->lap('getSeries');
+            }
+
+            ksort($series);
         }
 
-        /*$lessPerformancesMovie = $requiredMovies[0];
-        foreach($requiredMovies as $movie){
-            if(count($movie->getPerformances()) == 0){
-                return $series;
-            } else if(count($lessPerformancesMovie->getPerformances()) > count($movie->getPerformances())){
-                $lessPerformancesMovie = $movie;
-            }
-        }*/
-
-        foreach($requiredMovies as $movie){
-            foreach($movie->getPerformances() as $performance){
-                $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options));
-            }
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->stop('getSeries');
         }
-
-
-        ksort($series);
 
         return $series;
     }
@@ -97,16 +112,14 @@ class MovieMatcherManager {
     /**
      * @return Serie[]
      */
-    private function createSeriesForPerformance(Performance $performance, $requiredMovies = array(), $options = array()){
+    private function createSeriesForPerformance(Performance $performance, $requiredMovies = array(), $options = array(), SeriePerformancesConstraint $constraint){
 
         $series = array();
 
         $performancesTreeNode = $this->getAllPerformancesTreeNode($options);
 
-        //echo $performancesTreeNode;
-        //die();
-
         $options = $this->getOptions($options);
+
 
         $minSize = $options['serie_min_size'];
         $maxSize = $options['serie_max_size'];
@@ -119,8 +132,6 @@ class MovieMatcherManager {
             'serie' => new Serie()
         );
         $seriesToComplete[0]['serie']->addPerformance($performance);
-
-        $constraint = new SeriePerformancesConstraint($options);
 
         while(!empty($seriesToComplete)){
             $nextSerie = array_pop($seriesToComplete);
@@ -202,6 +213,10 @@ class MovieMatcherManager {
      * @return PerformancesTreeNode
      */
     private function getAllPerformancesTreeNode($options){
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->start('getAllPerformancesTreeNode', 'MovieMatcherManager');
+        }
+
         $locale = $options['locale'];
         $key = 'movie_matcher_manager_performances_treenode_all_' . $locale;
 
@@ -221,6 +236,11 @@ class MovieMatcherManager {
                 $this->cache->save($key, $performancesTreeNode, strtotime('tomorrow') - time());
             }
         }
+
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->stop('getAllPerformancesTreeNode');
+        }
+
 
         return $this->allPerformancesTreeNodes[$locale];
     }

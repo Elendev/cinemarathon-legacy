@@ -38,4 +38,20 @@ class MovieManager {
     public function getCurrentMoviesWithPerformances($options = array()){
         return $this->provider->getCurrentMoviesWithPerformances($options);
     }
+
+    /**
+     * @param array $options
+     * @return \DateTime
+     */
+    public function getFirstPerformanceDate($options = array()){
+        return $this->provider->getFirstPerformanceDate($options);
+    }
+
+    /**
+     * @param array $options
+     * @return \DateTime
+     */
+    public function getLastPerformanceDate($options = array()){
+        return $this->provider->getLastPerformanceDate($options);
+    }
 } 

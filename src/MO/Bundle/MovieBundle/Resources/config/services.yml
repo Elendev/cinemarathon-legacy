@@ -19,7 +19,7 @@ services:
 
     mo_movie.manager.movie_matcher:
         class: MO\Bundle\MovieBundle\Manager\MovieMatcherManager
-        arguments: [@mo_movie.manager.movie_manager, @mo_movie.cache.movie_cache]
+        arguments: [@mo_movie.manager.movie_manager, @mo_movie.cache.movie_cache, @?debug.stopwatch]
 
     #Twig extensions
     mo_movie.twig.locale_extension:
@@ -28,6 +28,13 @@ services:
         tags:
             - { name: twig.extension }
 
+
+    #Forms
+    mo_movie.form.type.search_form:
+        class: MO\Bundle\MovieBundle\Form\SearchFormType
+        arguments: [@mo_movie.manager.movie_manager, @router]
+        tags:
+            - { name: form.type, alias: search_form }
 
 
     #Movie cache

@@ -248,6 +248,73 @@ class PatheProvider {
     }
 
     /**
+     * @param array $options
+     * @return \DateTime
+     */
+    public function getFirstPerformanceDate($options = array()){
+        $resultingOptions = array_merge(
+            array(
+                'locale' => 20
+            ),
+            $options);
+
+        $locale = $resultingOptions['locale'];
+
+        $key = 'pathe_movie_first_perf_date_' . $locale;
+
+        if($this->cache->contains($key)){
+            return $this->cache->fetch($key);
+        }
+
+        $firstDate = new \DateTime();
+        foreach($this->getCurrentMoviesWithPerformances() as $movie){
+            foreach($movie->getPerformances() as $performance){
+                if($performance->getStartDate() < $firstDate){
+                    $firstDate = $performance->getStartDate();
+                }
+            }
+        }
+
+        $this->cache->save($key, $firstDate, strtotime('tomorrow') - time());
+
+        return $firstDate;
+    }
+
+    /**
+     * @param array $options
+     * @return \DateTime
+     */
+    public function getLastPerformanceDate($options = array()){
+        $resultingOptions = array_merge(
+            array(
+                'locale' => 20
+            ),
+            $options);
+
+        $locale = $resultingOptions['locale'];
+
+        $key = 'pathe_movie_last_perf_date_' . $locale;
+
+        if($this->cache->contains($key)){
+            return $this->cache->fetch($key);
+        }
+
+        $lastDate = new \DateTime();
+        $lastDate->setTimestamp(0);
+        foreach($this->getCurrentMoviesWithPerformances() as $movie){
+            foreach($movie->getPerformances() as $performance){
+                if($performance->getEndDate() > $lastDate){
+                    $lastDate = $performance->getEndDate();
+                }
+            }
+        }
+
+        $this->cache->save($key, $lastDate, strtotime('tomorrow') - time());
+
+        return $lastDate;
+    }
+
+    /**
      * Go through every movies to upload the cache
      */
     public function updateCache($locales = null) {

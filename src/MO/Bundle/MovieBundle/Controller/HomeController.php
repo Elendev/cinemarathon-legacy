@@ -2,6 +2,7 @@
 
 namespace MO\Bundle\MovieBundle\Controller;
 
+use MO\Bundle\MovieBundle\Form\SearchFormType;
 use MO\Bundle\MovieBundle\Model\Movie;
 use MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,7 +29,7 @@ class HomeController extends Controller
 
         return array(
             'movies' => $movies,
-            'form' => $this->createComboForm($movies)->createView()
+            'form' => $this->createComboForm($this->getCityLocale($request))->createView()
         );
     }
 
@@ -64,7 +65,7 @@ class HomeController extends Controller
     public function moviesTimelineAction(Request $request){
         $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array('locale' => $this->getCityLocale($request)));
 
-        $form = $this->createComboForm($movies);
+        $form = $this->createComboForm($this->getCityLocale($request));
 
         $form->handleRequest($request);
 
@@ -83,7 +84,11 @@ class HomeController extends Controller
                 'same_cinema' => $form->get('same_cinema')->getData(),
                 'same_hall' => $form->get('same_hall')->getData(),
                 'min_time_between' => $form->get('min_time_between')->getData(),
-                'max_time_between' => $form->get('max_time_between')->getData()
+                'max_time_between' => $form->get('max_time_between')->getData(),
+                'start_time_min' => $form->get('start_time_min')->getData(),
+                'start_time_max' => $form->get('start_time_max')->getData(),
+                'date_min' => $form->get('date_min')->getData(),
+                'date_max' => $form->get('date_max')->getData()
             );
 
             $series = $this->get('mo_movie.manager.movie_matcher')->getSeries($movieList, $options);
@@ -116,29 +121,8 @@ class HomeController extends Controller
         return $request->cookies->get('city_locale', 20);
     }
 
-    private function createComboForm($movieList){
-
-        $movieArray = array();
-
-        foreach($movieList as $movie){
-            /* @var $movie Movie */
-            $movieArray[$movie->getPageUrl()] = $movie->getName();
-        }
-
-        $timeList = array();
-        for($i = 5; $i <= 120; $i += 5) {
-            $timeList[$i * 60] = $i . ' minutes';
-        }
-
-        $formBuilder = $this->createFormBuilder(null, array('csrf_protection' => false))
-            ->setAction($this->generateUrl('mo_movie.movie_timeline'))
-            ->setMethod('GET')
-            ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'multiple' => true, 'label' => 'Films'))
-            ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
-            ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
-            ->add('min_time_between', 'choice', array('label' => 'Temps min. entre séances', 'choices' => $timeList, 'data' => 10 * 60))
-            ->add('max_time_between', 'choice', array('label' => 'Temps max. entre séances', 'choices' => $timeList, 'data' => 30*60))
-            ->add('submit', 'submit', array('label' => 'Chercher une correspondance' ));
-        return $formBuilder->getForm();
+    private function createComboForm($locale){
+        //return $this->createForm(new SearchFormType($movieList, $this->generateUrl('mo_movie.movie_timeline')));
+        return $this->createForm('search_form', null, array('locale' => $locale));
     }
 }

@@ -22,7 +22,9 @@ class SeriePerformancesConstraint {
             'start_time_min' => 0,
             'start_time_max' => 60*60*24,
             'end_time_min' => 0,
-            'end_time_max' => 60*60*24
+            'end_time_max' => 60*60*24,
+            'date_min' => null,
+            'date_max' => null
         ), $constraints);
     }
 
@@ -38,6 +40,10 @@ class SeriePerformancesConstraint {
 
         if(count($serie->getPerformances()) == 0){
             return true;
+        }
+
+        if(!$this->performanceRespectConstraint($performance, $computedConstraints)){
+            return false;
         }
 
         if($serie->containsMovie($performance->getMovie())){
@@ -60,17 +66,6 @@ class SeriePerformancesConstraint {
             }
         }
 
-        /*$dayStart = strtotime('midnight');
-        $startTime = $performance->getStartDate()->getTimestamp() - $dayStart;
-        $endTime = $performance->getEndDate()->getTimestamp() - $dayStart;
-
-        if($startTime < $this->constraints['start_time_min'] ||
-            $startTime > $this->constraints['start_time_max'] ||
-            $endTime < $this->constraints['end_time_min'] ||
-            $endTime > $this->constraints['end_time_max']){
-            return false;
-        }*/
-
         if($serie->getStartDate() > $performance->getEndDate()) {
             $diff = $serie->getStartDate()->getTimestamp() - $performance->getEndDate()->getTimestamp();
         } else if($serie->getEndDate() < $performance->getStartDate()){
@@ -80,5 +75,37 @@ class SeriePerformancesConstraint {
         }
 
         return $diff >= $computedConstraints['min_time_between'] && $diff <= $computedConstraints['max_time_between'];
+    }
+
+    /**
+     * @param Performance $performance
+     * @param array $constraints
+     */
+    public function performanceRespectConstraint(Performance $performance, $constraints = array()) {
+        $computedConstraints = array_merge($this->constraints, $constraints);
+
+        if($computedConstraints['date_min'] !== null){
+            if($performance->getStartDate()->getTimestamp() < $computedConstraints['date_min']){
+                return false;
+            }
+        }
+
+        if($computedConstraints['date_max'] !== null){
+            if($performance->getStartDate()->getTimestamp() > $computedConstraints['date_max']){
+                return false;
+            }
+        }
+
+        $startTime = $performance->getStartDate()->format('H') * 60 * 60 + $performance->getStartDate()->format('i') * 60 + $performance->getStartDate()->format('s');
+        $endTime = $performance->getEndDate()->format('H') * 60 * 60 + $performance->getEndDate()->format('i') * 60 + $performance->getEndDate()->format('s');
+
+        if($startTime < $computedConstraints['start_time_min'] ||
+            $startTime > $computedConstraints['start_time_max'] ||
+            $endTime < $computedConstraints['end_time_min'] ||
+            $endTime > $computedConstraints['end_time_max']){
+            return false;
+        }
+
+        return true;
     }
 } 
