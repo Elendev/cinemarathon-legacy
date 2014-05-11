@@ -1,0 +1,90 @@
+{{form_javascript(form)}}
+{{ form_start(form, {'class': 'form-horizontal', 'role': 'form'}) }}
+    <div class="form-group">
+        {{ form_label(form.movies) }}
+        <div class="col-sm-8">
+            {{ form_widget(form.movies) }}
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            <div class="checkbox">
+                <label>
+                    {{ form_widget(form.same_cinema) }} {{ form.same_cinema.vars.label }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            <div class="checkbox">
+                <label>
+                    {{ form_widget(form.same_hall) }} {{ form.same_hall.vars.label }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">
+            {{ 'Heure de début'|trans }}
+        </label>
+        <div class="col-sm-8">
+            <p class="form-control-static">Entre {{ form_widget(form.start_time_min) }} et {{ form_widget(form.start_time_max) }}</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">
+            {{ 'Dates'|trans }}
+        </label>
+        <div class="col-sm-8">
+            <p class="form-control-static">Entre le {{ form_widget(form.date_min) }} et le {{ form_widget(form.date_max) }}</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">
+            {{ 'Temps entre les séances'|trans }}
+        </label>
+        <div class="col-sm-8">
+            <p class="form-control-static">Entre {{ form_widget(form.min_time_between) }} et {{ form_widget(form.max_time_between) }}</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">
+            {{ 'Taille des séries'|trans }}
+        </label>
+        <div class="col-sm-8">
+            <p class="form-control-static">Entre {{ form_widget(form.serie_min_size) }} et {{ form_widget(form.serie_max_size) }}</p>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+            {{ form_widget(form.submit) }}
+        </div>
+    </div>
+{{ form_end(form) }}
+
+
+
+
+{#
+            ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
+            ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
+            ->add('min_time_between', 'choice', array('label' => 'Temps min. entre séances', 'choices' => $timeList, 'data' => 10 * 60))
+            ->add('max_time_between', 'choice', array('label' => 'Temps max. entre séances', 'choices' => $timeList, 'data' => 30*60))
+            ->add('serie_min_size', 'choice', array('label' => 'Nb. min de séances', 'choices' => $nbSeries, 'data' => 2))
+            ->add('serie_max_size', 'choice', array('label' => 'Nb. max de séances', 'choices' => $nbSeries, 'data' => 3))
+            ->add('start_time_min', 'choice', array('label' => 'Heure de début min.', 'choices' => $hourList, 'data' => 14*60*60))
+            ->add('start_time_max', 'choice', array('label' => 'Heure de début max.', 'choices' => $hourList, 'data' => 60*60*23 + 60*30))
+            ->add('date_min', 'choice', array('label' => 'Date min.', 'choices' => $minDatesList, 'data' => $defaultStartChoice))
+            ->add('date_max', 'choice', array('label' => 'Date max.', 'choices' => $maxDatesList, 'data' => $defaultEndChoice))
+            ->add('submit', 'submit', array('label' => 'Chercher une correspondance' ));
+#}

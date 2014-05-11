@@ -87,6 +87,8 @@ class HomeController extends Controller
                 'max_time_between' => $form->get('max_time_between')->getData(),
                 'start_time_min' => $form->get('start_time_min')->getData(),
                 'start_time_max' => $form->get('start_time_max')->getData(),
+                'serie_min_size' => $form->get('serie_min_size')->getData(),
+                'serie_max_size' => $form->get('serie_max_size')->getData(),
                 'date_min' => $form->get('date_min')->getData(),
                 'date_max' => $form->get('date_max')->getData()
             );

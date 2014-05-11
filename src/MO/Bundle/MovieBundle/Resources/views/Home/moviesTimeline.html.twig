@@ -17,8 +17,7 @@
             Voir une série de films
         </div>
         <div class="panel-body">
-            {{form_javascript(form)}}
-            {{form(form)}}
+            {% include 'MOMovieBundle:Form:searchForm.html.twig' with {'form' : form} %}
         </div>
     </div>
 

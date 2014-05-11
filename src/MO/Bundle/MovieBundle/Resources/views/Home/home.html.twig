@@ -3,16 +3,15 @@
 {% block title %}MOMovieBundle:Home:home{% endblock %}
 
 {% block body %}
-
     <div class="panel panel-info">
         <div class="panel-heading">
             Voir une série de films
         </div>
         <div class="panel-body">
-            {{form_javascript(form)}}
-            {{form(form)}}
+            {% include 'MOMovieBundle:Form:searchForm.html.twig' with {'form' : form} %}
         </div>
     </div>
+
 
     <div class="panel panel-default">
         <div class="panel-heading">
