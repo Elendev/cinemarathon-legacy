@@ -1,5 +1,6 @@
 parameters:
 #    mo_movie.example.class: MO\Bundle\MovieBundle\Example
+    mo_movie.cache.movie_cache_path: "/mo/movie_cache"
 
 services:
 #    mo_movie.example:
@@ -40,4 +41,12 @@ services:
     #Movie cache
     mo_movie.cache.movie_cache:
         class: Doctrine\Common\Cache\FilesystemCache
-        arguments: ["%kernel.cache_dir%/mo/movie_cache"]
+        arguments: ["%kernel.cache_dir%%mo_movie.cache.movie_cache_path%"]
+
+
+    #cache
+    mo_movie.cache.warmer:
+        class: MO\Bundle\MovieBundle\Cache\MovieWarmer
+        arguments: [@service_container, "%mo_movie.cache.movie_cache_path%"]
+        tags:
+          - { name: kernel.cache_warmer, priority: 0 }

@@ -67,7 +67,7 @@ class SearchFormType extends AbstractType{
         $defaultStartChoice = $startDate->getTimestamp();
 
         for($i = 0; $i < $dayQuantity; $i ++){
-            $label = $startDate->format('d/m/Y');
+            $label = $startDate->format('l d/m/Y');
             $minDatesList[$startDate->getTimestamp()] = $label;
             $startDate->add(new \DateInterval('P1D'));
             $maxDatesList[$startDate->getTimestamp() - 1] = $label;
