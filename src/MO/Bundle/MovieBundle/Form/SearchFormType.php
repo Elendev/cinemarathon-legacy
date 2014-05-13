@@ -32,9 +32,15 @@ class SearchFormType extends AbstractType{
 
     private $locale;
 
+    /**
+     * @var Request
+     */
+    private $request;
+
     public function __construct(MovieManager $movieManager, Router $router, Request $request){
         $this->movieManager = $movieManager;
         $this->router = $router;
+        $this->request = $request;
         $this->locale = $request->getLocale();
     }
 
@@ -84,11 +90,13 @@ class SearchFormType extends AbstractType{
         }
         $defaultEndChoice = $startDate->getTimestamp() - 1;
 
+        //for mobile, propose normal choice
+        $mobileDetect = new \Mobile_Detect();
 
         $builder
             ->setAction($this->router->generate('mo_movie.movie_timeline'))
             ->setMethod('GET')
-            ->add('movies', 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'required' => true, 'multiple' => true, 'label' => 'Films requis (min. 1)'))
+            ->add('movies', $mobileDetect->isMobile() ? 'choice' : 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'required' => true, 'multiple' => true, 'label' => 'Films requis (min. 1)'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
             ->add('min_time_between', 'choice', array('label' => 'Temps min. entre séances', 'choices' => $timeList, 'data' => 10 * 60))
