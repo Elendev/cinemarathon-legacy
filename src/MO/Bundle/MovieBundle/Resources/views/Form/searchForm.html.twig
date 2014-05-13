@@ -28,39 +28,39 @@
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group form-inline">
         <label class="col-sm-4 control-label">
             {{ 'Heure de début'|trans }}
         </label>
         <div class="col-sm-8">
-            <p class="form-control-static">Entre {{ form_widget(form.start_time_min) }} et {{ form_widget(form.start_time_max) }}</p>
+            Entre {{ form_widget(form.start_time_min, {'attr': {'class' : 'form-control'}}) }} et {{ form_widget(form.start_time_max, {'attr': {'class' : 'form-control'}})}}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group form-inline">
         <label class="col-sm-4 control-label">
             {{ 'Dates'|trans }}
         </label>
         <div class="col-sm-8">
-            <p class="form-control-static">Entre le {{ form_widget(form.date_min) }} et le {{ form_widget(form.date_max) }}</p>
+            Entre le {{ form_widget(form.date_min, {'attr': {'class' : 'form-control'}}) }} et le {{ form_widget(form.date_max, {'attr': {'class' : 'form-control'}}) }}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group form-inline">
         <label class="col-sm-4 control-label">
             {{ 'Temps entre les séances'|trans }}
         </label>
         <div class="col-sm-8">
-            <p class="form-control-static">Entre {{ form_widget(form.min_time_between) }} et {{ form_widget(form.max_time_between) }}</p>
+            Entre {{ form_widget(form.min_time_between, {'attr': {'class' : 'form-control'}}) }} et {{ form_widget(form.max_time_between, {'attr': {'class' : 'form-control'}}) }}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group form-inline">
         <label class="col-sm-4 control-label">
             {{ 'Taille des séries'|trans }}
         </label>
         <div class="col-sm-8">
-            <p class="form-control-static">Entre {{ form_widget(form.serie_min_size) }} et {{ form_widget(form.serie_max_size) }}</p>
+            Entre {{ form_widget(form.serie_min_size, {'attr': {'class' : 'form-control'}}) }} et {{ form_widget(form.serie_max_size, {'attr': {'class' : 'form-control'}}) }}
         </div>
     </div>
 
