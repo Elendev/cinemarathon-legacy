@@ -29,11 +29,18 @@ services:
         tags:
             - { name: twig.extension }
 
+    #language listener
+    mo_movie.language.kernel_request_listener:
+        class: MO\Bundle\MovieBundle\EventListener\LanguageListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: setLocale }
+
 
     #Forms
     mo_movie.form.type.search_form:
         class: MO\Bundle\MovieBundle\Form\SearchFormType
-        arguments: [@mo_movie.manager.movie_manager, @router]
+        scope: request
+        arguments: [@mo_movie.manager.movie_manager, @router, @request]
         tags:
             - { name: form.type, alias: search_form }
 

@@ -33,7 +33,7 @@
             <div class="panel-group" id="accordion">
 
                 {% for serie in series %}
-                    {% set dateItem = serie.startDate|date('d/m/y') %}
+                    {% set dateItem = serie.startDate|localizeddate('full', 'none', app.request.locale, none, 'eeee d MMMM Y') %}
 
                     {% if loop.first %}
                         {% set previousDate = dateItem %}

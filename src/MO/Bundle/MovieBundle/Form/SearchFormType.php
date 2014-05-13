@@ -13,8 +13,10 @@ use MO\Bundle\MovieBundle\Manager\MovieManager;
 use MO\Bundle\MovieBundle\Model\Movie;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Translation\Translator;
 
 class SearchFormType extends AbstractType{
 
@@ -28,9 +30,12 @@ class SearchFormType extends AbstractType{
      */
     private $router;
 
-    public function __construct(MovieManager $movieManager, Router $router){
+    private $locale;
+
+    public function __construct(MovieManager $movieManager, Router $router, Request $request){
         $this->movieManager = $movieManager;
         $this->router = $router;
+        $this->locale = $request->getLocale();
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -66,8 +71,11 @@ class SearchFormType extends AbstractType{
         $dayQuantity = $endDate->diff($startDate)->format('%a') + 1;
         $defaultStartChoice = $startDate->getTimestamp();
 
+        $dateFormatter = new \IntlDateFormatter($this->locale, \IntlDateFormatter::LONG, \IntlDateFormatter::LONG);
+        $dateFormatter->setPattern('eeee d MMMM Y');
+
         for($i = 0; $i < $dayQuantity; $i ++){
-            $label = $startDate->format('l d/m/Y');
+            $label = $dateFormatter->format($startDate);//$startDate->format('l d/m/Y');
             $minDatesList[$startDate->getTimestamp()] = $label;
             $startDate->add(new \DateInterval('P1D'));
             $maxDatesList[$startDate->getTimestamp() - 1] = $label;

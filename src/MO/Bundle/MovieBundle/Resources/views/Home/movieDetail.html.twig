@@ -27,11 +27,11 @@
                     </div>
 
                     <div class="col-xs-3">
-                        {{performance.startDate|date('Y-m-d H:i')}}
+                        {{performance.startDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm - eeee d MMMM Y")}}
                     </div>
 
                     <div class="col-xs-3">
-                        {{performance.endDate|date('Y-m-d H:i')}}
+                        {{performance.endDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm - eeee d MMMM Y")}}
                     </div>
                 </div>
             {% endfor %}
