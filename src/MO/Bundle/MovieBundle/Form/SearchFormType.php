@@ -47,6 +47,8 @@ class SearchFormType extends AbstractType{
             $movieArray[$movie->getPageUrl()] = $movie->getName();
         }
 
+        asort($movieArray);
+
         $nbSeries = array();
         for($i = 2; $i < 6; $i ++){
             $nbSeries[$i] = $i;
