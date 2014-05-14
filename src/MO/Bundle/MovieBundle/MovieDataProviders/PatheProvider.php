@@ -332,6 +332,13 @@ class PatheProvider {
             }
         }
 
+        //last cache update
+        $this->cache->save('pathe_movie_cache_update_date', new \DateTime());
+
+    }
+
+    public function getLastCacheUpdate(){
+        $this->cache->fetch('pathe_movie_cache_update_date');
     }
 
     private function getStreamContext ($options) {

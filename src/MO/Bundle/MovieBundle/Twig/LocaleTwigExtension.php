@@ -41,7 +41,8 @@ class LocaleTwigExtension extends \Twig_Extension{
                 21 => 'Berne',
                 22 => 'Bâle'
             ),
-            'currentCity' => $this->container->get('request')->cookies->get('city_locale', 20)
+            'currentCity' => $this->container->get('request')->cookies->get('city_locale', 20),
+            'lastCacheUpdate' => $this->container->get('mo_movie.provider.pathe')->getLastCacheUpdate()
         );
     }
 }
