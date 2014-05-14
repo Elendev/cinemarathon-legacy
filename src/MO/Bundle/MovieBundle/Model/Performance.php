@@ -174,5 +174,8 @@ class Performance {
         return $this->version;
     }
 
+    public function getSignature(){
+        return $this->getCinema()->getName() . $this->getHall()->getName() . $this->getStartDate()->getTimestamp() . $this->getEndDate()->getTimestamp() . $this->getVersion() . $this->getKind();
+    }
 
 } 

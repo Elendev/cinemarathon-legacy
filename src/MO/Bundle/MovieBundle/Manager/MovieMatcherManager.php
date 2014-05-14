@@ -84,23 +84,31 @@ class MovieMatcherManager {
         $series = array();
 
         if(!empty($requiredMovies)) {
+            $movies = $requiredMovies;
+        } else {
+            $movies = $this->movieManager->getCurrentMoviesWithPerformances($options);
+        }
 
-            $constraint = new SeriePerformancesConstraint($options);
+        $constraint = new SeriePerformancesConstraint($options);
 
-            foreach($requiredMovies as $movie){
-                foreach($movie->getPerformances() as $performance){
-                    if($constraint->performanceRespectConstraint($performance, $options)){
-                        $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options, $constraint));
-                    }
+        $usedPerformances = array();
+
+        foreach($movies as $movie){
+            foreach($movie->getPerformances() as $performance){
+                if(array_key_exists($performance->getSignature(), $usedPerformances)){
+                    echo "<hr> usedPerformances matched - size : " . count($usedPerformances) . "<hr>";
+                }
+                if(!array_key_exists($performance->getSignature(), $usedPerformances) && $constraint->performanceRespectConstraint($performance, $options)){
+                    $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options, $constraint, $usedPerformances));
                 }
             }
-
-            if(null !== $this->stopWatch) {
-                $this->stopWatch->lap('getSeries');
-            }
-
-            ksort($series);
         }
+
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->lap('getSeries');
+        }
+
+        ksort($series);
 
         if(null !== $this->stopWatch) {
             $this->stopWatch->stop('getSeries');
@@ -111,8 +119,9 @@ class MovieMatcherManager {
 
     /**
      * @return Serie[]
+     * @param $usedPerformances optionnal parameter returning an array of performances in every series
      */
-    private function createSeriesForPerformance(Performance $performance, $requiredMovies = array(), $options = array(), SeriePerformancesConstraint $constraint){
+    private function createSeriesForPerformance(Performance $performance, $requiredMovies = array(), $options = array(), SeriePerformancesConstraint $constraint, array &$usedPerformances = null){
 
         $series = array();
 
@@ -129,59 +138,107 @@ class MovieMatcherManager {
         $seriesToComplete = array();
         $seriesToComplete[0] = array(
             'lookBack' => false,
-            'serie' => new Serie()
+            'serie' => new Serie(),
+            'currentI' => 0
         );
         $seriesToComplete[0]['serie']->addPerformance($performance);
 
         while(!empty($seriesToComplete)){
             $nextSerie = array_pop($seriesToComplete);
 
-            $continue = true;
+            //$continue = true;
             $lookBack = $nextSerie['lookBack']; //nothing after : look back
 
             /* @var $serie Serie */
             $serie = $nextSerie['serie'];
-            //$loop = 0;
-            while($continue && count($serie->getPerformances()) < $maxSize){
 
-                //echo "<hr>serie from " . $serie->getStartDate()->format('Y-m-d H:i:s'). " to " . $serie->getEndDate()->format('Y-m-d H:i:s'). "<hr>";
-                $ptnv = $this->createPerformancesTreeNodeVisitor($serie, $constraint, $options, $lookBack);
+            $i = $nextSerie['currentI'];
 
-                $performancesTreeNode->visit($ptnv);
-                //echo "Did find " . count($ptnv->getPerformances()) . " performances<hr>";
+            for($direction = $lookBack ? 1 : 0; $direction < 2; $direction ++) { //normal + lookBack
+                $lookBack = $direction == 1;
+                for(; $i < $maxSize; $i ++){
+                    $ptnv = $this->createPerformancesTreeNodeVisitor($serie, $constraint, $options, $lookBack);
 
-                if(count($ptnv->getPerformances()) == 1){
-                    $serie->addPerformance(array_values($ptnv->getPerformances())[0]);
-                } else if(count($ptnv->getPerformances()) > 1){
-                    $currentPerformances = $serie->getPerformances();
-                    $perfs = $ptnv->getPerformances();
+                    $performancesTreeNode->visit($ptnv);
 
-                    $serie->addPerformance(array_shift($perfs));
+                    if(count($ptnv->getPerformances()) == 1){
+                        $newPerformance = array_values($ptnv->getPerformances())[0];
+                        $serie->addPerformance($newPerformance);
+                        if($usedPerformances !== null){
+                            $usedPerformances[$newPerformance->getSignature()] = $newPerformance;
+                        }
+                    } else if(count($ptnv->getPerformances()) > 1){
+                        $currentPerformances = $serie->getPerformances();
+                        $perfs = $ptnv->getPerformances();
 
-                    foreach($perfs as $perf){
-                        $newSerie = new Serie();
-                        $newSerie->setPerformances(array_merge($currentPerformances, array($perf)));
-                        $seriesToComplete[] = array(
-                            'lookBack' => $lookBack,
-                            'serie' => $newSerie
-                        );
-                    }
-                } else {
-                    if(!$lookBack){
-                        $lookBack = true;
+                        $newPerformance = array_shift($perfs);
+
+                        $serie->addPerformance($newPerformance);
+
+                        if($usedPerformances !== null){
+                            $usedPerformances[$newPerformance->getSignature()] = $newPerformance;
+                        }
+
+                        foreach($perfs as $perf){
+                            $newSerie = new Serie();
+                            $newSerie->setPerformances(array_merge($currentPerformances, array($perf)));
+                            $seriesToComplete[] = array(
+                                'lookBack' => $lookBack,
+                                'serie' => $newSerie,
+                                'currentI' => $i + 1
+                            );
+                        }
                     } else {
-                        $continue = false;
+                        $i = $maxSize; //stop loop
                     }
                 }
-                //echo "<hr>Loop : " . $loop ++ . " - serie performances size : " . count($serie->getPerformances()) . " - " . $maxSize;
-            };
+                $i = 0; //reinit $i before we start again, because we set $i outside
+            }
+
 
             if(count($serie->getPerformances()) >= $minSize && count(array_intersect($serie->getMovies(), $requiredMovies)) == $requiredCount){
-                $series[$serie->getSignature()] = $serie;
+                //split serie
+                $splittedSeries = $this->splitSerie($serie, $maxSize, $requiredMovies);
+
+                foreach($splittedSeries as $splittedSerie){
+                    $series[$splittedSerie->getSignature()] = $splittedSerie;
+                }
             }
         }
 
         return $series;
+    }
+
+    /**
+     * Split the serie keeping required movies
+     * @param Serie $serie
+     * @param $maxSize
+     * @param array $requiredMovies
+     * @return Serie[]
+     */
+    private function splitSerie(Serie $serie, $maxSize, $requiredMovies = array()){
+        $performances = array_values($serie->getPerformances());
+
+        if(count($performances) < $maxSize){
+            $nbWindows = 1;
+        } else {
+            $nbWindows = (count($performances) - $maxSize) + 1;
+        }
+
+        $splittedSeries = array();
+
+        //take 'windows' of $maxSize containing all $requiredMovies, min one window (when serie size is smaller than max size)
+        for($i = 0; $i < $nbWindows; $i ++){
+            $subPerfs = array_slice($performances, $i, $maxSize);
+            $splittedSerie = new Serie();
+            $splittedSerie->setPerformances($subPerfs);
+
+            if(count(array_intersect($serie->getMovies(), $requiredMovies)) == count($requiredMovies)){
+                $splittedSeries[] = $splittedSerie;
+            }
+        }
+
+        return $splittedSeries;
     }
 
     /**
