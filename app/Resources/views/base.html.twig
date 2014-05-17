@@ -8,7 +8,7 @@
             <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
             <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/3.4.6/select2.min.css"/>
 
-            {% stylesheets '@MOMovieBundle/Resources/public/css/*' filter='cssrewrite' %}
+            {% stylesheets '@MOMovieBundle/Resources/public/css/*' filter='cssrewrite' output='css/compiled/main.css' %}
                 <link rel="stylesheet" href="{{ asset_url }}" />
             {% endstylesheets %}
 
