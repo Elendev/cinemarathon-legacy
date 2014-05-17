@@ -1,0 +1,37 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}Movie Marathon{% endblock %}
+
+{% block breadcumb %}
+    {{parent()}}
+    <li><a href="{{ path('mo_movie.movie_list') }}">Films</a></li>
+{% endblock %}
+
+{% block movie_list_class %}active{% endblock %}
+
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Liste des films disponibles
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                {% for movie in movies %}
+                    <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3 movie">
+                        <a href="{{path('mo_movie.movie_detail', {'movie_url': movie.pageUrl})}}">
+                            <div class="thumbnail">
+                                <h5>{{movie.name}}</h5>
+                                <img src="{{movie.imageUrl}}" >
+
+                                <div class="caption">
+
+                                    <p><a href="http://{{movie.pageUrl}}" target="_blank" class="btn btn-primary" role="button">Vers le site</a></p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -7,14 +7,16 @@
 
 {% block breadcumb %}
     {{parent()}}
-    <li>Timeline</li>
+    <li>Marathon</li>
 {% endblock %}
+
+{% block timeline_class %}active{% endblock %}
 
 {% block body %}
 
     <div class="panel panel-info">
         <div class="panel-heading">
-            Voir une série de films
+            <h4>Chercher une série de films</h4>
         </div>
         <div class="panel-body">
             {% include 'MOMovieBundle:Form:searchForm.html.twig' with {'form' : form} %}
@@ -22,8 +24,7 @@
     </div>
 
 
-    <h1>S&eacute;rie de films</h1>
-
+    <h1>Marathons de films</h1>
 
 
     <div class="row">

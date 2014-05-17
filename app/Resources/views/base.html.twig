@@ -7,6 +7,11 @@
         {% block stylesheets %}
             <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
             <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/3.4.6/select2.min.css"/>
+
+            {% stylesheets '@MOMovieBundle/Resources/public/css/*' filter='cssrewrite' %}
+                <link rel="stylesheet" href="{{ asset_url }}" />
+            {% endstylesheets %}
+
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
@@ -32,20 +37,36 @@
         {% endblock %}
 
     </head>
-    <body style="padding-top: 50px;">
+    <body>
 
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{cities[currentCity]}} <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            {% for key, city in cities %}
-                                <li><a href="{{path('mo_movie.change_city_locale', {'cityLocale' : key})}}">{{city}}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                </ul>
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">MoMa</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="{% block home_class %}{% endblock %}"><a href="{{ path('mo_movie.home') }}">Home</a></li>
+                        <li class="{% block movie_list_class %}{% endblock %}"><a href="{{ path('mo_movie.movie_list') }}">Films</a></li>
+                        <li class="{% block timeline_class %}{% endblock %}"><a href="{{ path('mo_movie.movie_timeline') }}">Marathon</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{cities[currentCity]}} <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                {% for key, city in cities %}
+                                    <li><a href="{{path('mo_movie.change_city_locale', {'cityLocale' : key})}}">{{city}}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
 
@@ -58,11 +79,12 @@
             </div>
         </div>
 
+        {% block upper_body %}{% endblock %}
 
         <div class="container">
             <ol class="breadcrumb">
                 {% block breadcumb %}
-                    <li><a href="{{path('mo_movie.movie_list')}}">Home</a></li>
+                    <li><a href="{{path('mo_movie.home')}}">Home</a></li>
                 {% endblock %}
             </ol>
             {% block body %}{% endblock %}

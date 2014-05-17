@@ -10,6 +10,8 @@ namespace MO\Bundle\MovieBundle\Cache;
 
 
 use Doctrine\Common\Cache\FilesystemCache;
+use MO\Bundle\MovieBundle\Manager\MovieManager;
+use MO\Bundle\MovieBundle\Manager\MovieMatcherManager;
 use MO\Bundle\MovieBundle\MovieDataProviders\CinemaPool;
 use MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -50,8 +52,21 @@ class MovieWarmer implements CacheWarmerInterface {
         $cache = new FilesystemCache($cacheDir . $this->cachePath);
         $cinemaPool = $this->container->get('mo_movie.pool.cinema');
 
-        $provier = new PatheProvider($cinemaPool, $cache);
+        $provider = new PatheProvider($cinemaPool, $cache);
 
-        $provier->updateCache();
+        $provider->updateCache();
+
+        $movieManager = new MovieManager($provider);
+        $movieMatcherManager = new MovieMatcherManager($movieManager, $cache);
+
+
+        //warmup teaser series for every locale
+        $locales = array(20, 21, 22, 23);
+
+        foreach($locales as $locale){
+            $movieMatcherManager->getTeaserSeries(3, array('locale' => $locale));
+        }
+
+
     }
 }

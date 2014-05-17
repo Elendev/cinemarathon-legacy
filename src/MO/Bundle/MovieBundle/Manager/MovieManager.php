@@ -35,6 +35,10 @@ class MovieManager {
         return $this->provider->getCurrentMovies($options);
     }
 
+    /**
+     * @param array $options
+     * @return array|\MO\Bundle\MovieBundle\Model\Movie[]
+     */
     public function getCurrentMoviesWithPerformances($options = array()){
         return $this->provider->getCurrentMoviesWithPerformances($options);
     }

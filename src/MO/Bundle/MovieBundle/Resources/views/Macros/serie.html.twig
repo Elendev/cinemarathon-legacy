@@ -1,6 +1,6 @@
 
 {% macro displaySerie(serie) %}
-    <div class="panel panel-default">
+    <div class="serie panel panel-default">
         <div class="panel-heading">
             {% set cinemas = serie.getCinemas() %}
             {% if cinemas|length == 1 %}
@@ -16,7 +16,14 @@
         <div class="panel-body">
             <div class="row">
                 {% for performance in serie.performances %}
-                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                    {% if loop.length == 2 %}
+                        {% set class = "col-xs-12 col-sm-6" %}
+                    {% elseif loop.length == 3 %}
+                        {% set class = "col-xs-12 col-sm-6 col-md-4" %}
+                    {% else %}
+                        {% set class = "col-xs-12 col-sm-6 col-md-4 col-lg-3" %}
+                    {% endif %}
+                    <div class="{{ class }}">
                         <div class="thumbnail">
                             <div class="row">
                                 <div class="col-xs-3 col-sm-3 col-md-3">

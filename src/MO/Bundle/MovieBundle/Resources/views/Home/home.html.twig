@@ -2,39 +2,53 @@
 
 {% block title %}Movie Marathon{% endblock %}
 
+{% block home_class %}active{% endblock %}
+
+{% import 'MOMovieBundle:Macros:serie.html.twig' as seriesMacro %}
+
 {% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Quelques recommandations</h4>
+        </div>
+        <div class="panel-body">
+            <div id="carousel-series" class="carousel slide home" data-ride="carousel">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    {% for serie in serieTeaser %}
+                        <li data-target="#carousel-series" data-slide-to="{{ loop.index0 }}" {% if loop.first %}class="active"{% endif %}></li>
+                    {% endfor %}
+                </ol>
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                    {% for serie in serieTeaser %}
+                        <div class="item {% if loop.first %}active{% endif %}">
+                            <div class="content-serie col-xs-8 col-xs-offset-2">
+                                {{ seriesMacro.displaySerie(serie) }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Controls -->
+                <a class="left carousel-control" href="#carousel-series" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <a class="right carousel-control" href="#carousel-series" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="panel panel-info">
         <div class="panel-heading">
-            Voir une série de films
+            <h4>Chercher une série de films</h4>
         </div>
         <div class="panel-body">
             {% include 'MOMovieBundle:Form:searchForm.html.twig' with {'form' : form} %}
         </div>
     </div>
 
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Liste des films disponibles
-        </div>
-        <div class="panel-body">
-            <div class="row">
-                {% for movie in movies %}
-                    <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3 movie">
-                        <a href="{{path('mo_movie.movie_detail', {'movie_url': movie.pageUrl})}}">
-                            <div class="thumbnail">
-                                <h5>{{movie.name}}</h5>
-                                <img src="{{movie.imageUrl}}" >
-
-                                <div class="caption">
-
-                                    <p><a href="http://{{movie.pageUrl}}" target="_blank" class="btn btn-primary" role="button">Vers le site</a></p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 {% endblock %}

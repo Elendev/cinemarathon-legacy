@@ -1,0 +1,12 @@
+body {
+    padding-top: 50px;
+}
+
+.carousel.home .carousel-inner {
+    background: #808080;
+}
+
+.carousel.home .carousel-inner .content-serie {
+    padding-top: 20px;
+    padding-bottom: 50px;
+}

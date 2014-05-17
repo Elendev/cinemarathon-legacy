@@ -16,20 +16,39 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HomeController extends Controller
 {
+
     /**
-     * @Route("/", name="mo_movie.movie_list")
+     *
+     * @Route("/", name="mo_movie.home")
      * @Cache(public=true, vary={"Cookie"}, expires="tomorrow")
      * @Template()
      */
     public function homeAction(Request $request)
+    {
+        $teaserSerie = $this->get('mo_movie.manager.movie_matcher')->getTeaserSeries(3, array(
+            'locale' => $this->getCityLocale($request)
+        ));
+
+        return array(
+            'serieTeaser' => $teaserSerie,
+            'form' => $this->createComboForm($this->getCityLocale($request))->createView()
+        );
+    }
+
+    /**
+     *
+     * @Route("/movies", name="mo_movie.movie_list")
+     * @Cache(public=true, vary={"Cookie"}, expires="tomorrow")
+     * @Template()
+     */
+    public function movieListAction(Request $request)
     {
         $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array(
             'locale' => $this->getCityLocale($request)
         ));
 
         return array(
-            'movies' => $movies,
-            'form' => $this->createComboForm($this->getCityLocale($request))->createView()
+            'movies' => $movies
         );
     }
 

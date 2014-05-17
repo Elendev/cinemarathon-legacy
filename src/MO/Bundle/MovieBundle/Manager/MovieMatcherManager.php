@@ -113,6 +113,70 @@ class MovieMatcherManager {
     }
 
     /**
+     * Get teaser series for home
+     * @param int $quantity
+     * @param array $options
+     * @return Serie[]
+     */
+    public function getTeaserSeries($quantity = 3, $options = array()){
+
+        $options = $this->getOptions($options);
+        $cacheKey = 'movie_matcher_manager_teaser_series_' . $quantity . '_' . $options['locale'];
+        $series = array();
+
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->start('getTeaserSeries', 'MovieMatcherManager');
+        }
+
+        if($this->cache->contains($cacheKey)){
+            $series = $this->cache->fetch($cacheKey);
+        } else {
+
+            $movies = $this->movieManager->getCurrentMoviesWithPerformances($options);
+            $quantityMovies = array();
+
+            foreach($movies as $movie){
+                $quantityMovies[count($movie->getPerformances())] = $movie;
+            }
+
+            krsort($quantityMovies);
+
+            for($i = 0; $i < $quantity; $i ++){
+
+                $opts = $options + array(
+                    'serie_min_size' => 2,
+                    'serie_max_size' => 2
+                );
+
+                if(count($quantityMovies) > $i) {
+                    $id = $i;
+                } else {
+                    $id = rand(0, count($quantityMovies));
+                }
+
+                $resultSeries = $this->getSeries(array(array_values($quantityMovies)[$id]), $opts);
+
+                foreach($resultSeries as $serie){
+                    if(!array_key_exists($serie->getSignature(), $series)){
+                        $series[$serie->getSignature()] = $serie;
+                        break;
+                    }
+                }
+            }
+
+            $series = array_values($series);
+            $this->cache->save($cacheKey, $series, strtotime('tomorrow') - time());
+        }
+
+
+        if(null !== $this->stopWatch) {
+            $this->stopWatch->stop('getTeaserSeries');
+        }
+
+        return $series;
+    }
+
+    /**
      * @return Serie[]
      * @param $usedPerformances optionnal parameter returning an array of performances in every series
      */

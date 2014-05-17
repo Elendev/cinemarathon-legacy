@@ -1,14 +1,18 @@
-{% extends "::base.html.twig" %}
+{% extends "MOMovieBundle:Home:movieList.html.twig" %}
 
 {% block title %}Movie Marathon - {{ movie.name }}{% endblock %}
-
 
 {% block breadcumb %}
     {{parent()}}
     {% if movie %}
-    <li>{{movie.name}}</li>
+        <li>{{movie.name}}</li>
+    {% else %}
+        <li>D&eacute;tails</li>
     {% endif %}
+
 {% endblock %}
+
+{% block movie_list_class %}active{% endblock %}
 
 
 {% block body %}
