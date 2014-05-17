@@ -91,15 +91,10 @@ class MovieMatcherManager {
 
         $constraint = new SeriePerformancesConstraint($options);
 
-        $usedPerformances = array();
-
         foreach($movies as $movie){
             foreach($movie->getPerformances() as $performance){
-                if(array_key_exists($performance->getSignature(), $usedPerformances)){
-                    echo "<hr> usedPerformances matched - size : " . count($usedPerformances) . "<hr>";
-                }
-                if(!array_key_exists($performance->getSignature(), $usedPerformances) && $constraint->performanceRespectConstraint($performance, $options)){
-                    $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options, $constraint, $usedPerformances));
+                if($constraint->performanceRespectConstraint($performance, $options)){
+                    $series = array_merge($series, $this->createSeriesForPerformance($performance, $requiredMovies, $options, $constraint));
                 }
             }
         }
