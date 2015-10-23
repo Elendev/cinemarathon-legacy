@@ -292,7 +292,7 @@ class MovieMatcherManager {
             $splittedSerie = new Serie();
             $splittedSerie->setPerformances($subPerfs);
 
-            if(count(array_intersect($serie->getMovies(), $requiredMovies)) == count($requiredMovies)){
+            if(count(array_intersect($splittedSerie->getMovies(), $requiredMovies)) == count($requiredMovies)){
                 $splittedSeries[] = $splittedSerie;
             }
         }
