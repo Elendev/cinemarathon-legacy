@@ -6,8 +6,8 @@ imports:
 #        cache: apc
 
 framework:
-    templating:
-        assets_base_urls:
+    assets:
+        base_path:
             http:   ["/app/web"]
             ssl:   ["/app/web"]
 
