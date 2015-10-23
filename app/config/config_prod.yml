@@ -7,9 +7,7 @@ imports:
 
 framework:
     assets:
-        base_path:
-            http:   ["/app/web"]
-            ssl:   ["/app/web"]
+        base_path: "/app/web"
 
 #doctrine:
 #    orm:
