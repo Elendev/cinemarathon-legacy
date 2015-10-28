@@ -128,26 +128,11 @@ class HomeController extends Controller
         );
     }
 
-    /**
-     * @Route("/changeCity/{cityLocale}", name="mo_movie.change_city_locale")
-     * @param Request $request
-     */
-    public function changeCityAction(Request $request, $cityLocale){
-        if($cityLocale > 23 || $cityLocale < 20){
-            throw $this->createNotFoundException();
-        }
-
-        $cookie = new Cookie('city_locale', $cityLocale);
-        $response = new RedirectResponse($this->generateUrl('mo_movie.movie_list'));
-        $response->headers->setCookie($cookie);
-
-        return $response;
-    }
-
     private function getCityLocale(Request $request){
         //return $request->cookies->get('city_locale', 20);
         $city = $request->attributes->get('city');
-        return $this->getParameter('app.cities.codes.' . $city, 20);
+        return $city;
+        //return $this->getParameter('app.cities.codes.' . $city, 20);
     }
 
     private function createComboForm($locale){

@@ -13,7 +13,7 @@ services:
 
     mo_movie.provider.pathe:
         class: MO\Bundle\MovieBundle\MovieDataProviders\PatheProvider
-        arguments: [@mo_movie.pool.cinema, @mo_movie.cache.movie_cache]
+        arguments: [@mo_movie.pool.cinema, @mo_movie.cache.movie_cache, @service_container]
 
     mo_movie.pool.cinema:
         class: MO\Bundle\MovieBundle\MovieDataProviders\CinemaPool

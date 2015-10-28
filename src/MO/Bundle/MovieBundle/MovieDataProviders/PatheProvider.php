@@ -14,12 +14,20 @@ use MO\Bundle\MovieBundle\Model\Movie;
 use MO\Bundle\MovieBundle\Model\Performance;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class PatheProvider {
 
-    private $moviesUrl = "http://pathe.ch/fr/lausanne/Films/alaffiche";
+    /**
+     * @var ContainerInterface
+     * List of the cities
+     *
+     */
+    private $container;
+
+    private $moviesUrl = "http://pathe.ch/fr/[city]/films/alafiche/all/[page]";
 
     /**
      * @var CinemaPool
@@ -41,9 +49,10 @@ class PatheProvider {
      */
     private $logger;
 
-    public function __construct(CinemaPool $cinemaPool, CacheProvider $cache, LoggerInterface $logger = null){
+    public function __construct(CinemaPool $cinemaPool, CacheProvider $cache, ContainerInterface $container, LoggerInterface $logger = null){
         $this->cinemaPool = $cinemaPool;
         $this->cache = $cache;
+        $this->container = $container;
 
         $this->logger = $logger ? $logger : new NullLogger();
     }
@@ -55,7 +64,7 @@ class PatheProvider {
 
         $resultingOptions = array_merge(
             array(
-                'locale' => 20
+                'locale' => $this->container->getParameter('app.cities.default')
             ),
             $options);
 
@@ -69,12 +78,49 @@ class PatheProvider {
             return $movies;
         }
 
-        $pageContent = file_get_contents($this->moviesUrl, false, $this->getStreamContext($resultingOptions));
+        $cityUrl = str_replace('[city]', $resultingOptions['locale'], $this->moviesUrl);
+        $pageContent = file_get_contents(str_replace('[page]', 1, $cityUrl), false, $this->getStreamContext($resultingOptions));
         $crawler = new Crawler($pageContent);
+
+        $pages = $crawler->filter('.paging')->first()->filter('a');
+        $pagesCount = 0;
+
+        $pages->each(function(Crawler $node, $i) use (&$pagesCount) {
+            if (!empty($node->text()) && is_numeric($node->text())) {
+                $pagesCount ++;
+            }
+        });
+
+        if ($pagesCount == 0) { //there is a least one page, but maybe no paging
+            $pagesCount = 1;
+        }
 
         $movies = array();
 
-        $crawler->filter('.movie-overview .row > div')->each(function(Crawler $node, $i) use(&$movies, $resultingOptions){
+        for ($page = 1; $page <= $pagesCount; $page ++) {
+            $pageUrl = str_replace('[page]', $page, $cityUrl);
+            $this->getMoviesFromPage($pageUrl, $resultingOptions, $movies);
+        }
+
+        //save in cache
+        $this->cache->save($cacheEntry, $movies, strtotime('tomorrow') - time());
+        $this->logger->debug('Cache saved for movies ' . $cacheEntry, $resultingOptions);
+
+
+        return $movies;
+    }
+
+    /**
+     * @param $url
+     * @param $options
+     * @param $movies useful to avoid creating a new array every time
+     * Return an array of movies in the given page (useful when there is more than one page)
+     */
+    private function getMoviesFromPage($url, $options, &$movies = array()) {
+        $pageContent = file_get_contents($url, false, $this->getStreamContext($options));
+        $crawler = new Crawler($pageContent);
+
+        $crawler->filter('.movie-overview .row > div')->each(function(Crawler $node, $i) use(&$movies, $options){
             $image = $node->filter('img')->attr('src');
             $link = $node->filter('a')->attr('href');
             $name = $node->filter('span > strong')->text();
@@ -82,15 +128,10 @@ class PatheProvider {
             $movie = new Movie();
             $movie->setName($name);
             $movie->setPageUrl('pathe.ch' . $link . '/schedule');
-            $movie->setImageUrl('http://pathe.ch' . $image);
+            $movie->setImageUrl($image);
 
             $movies[] = $movie;
         });
-
-        //save in cache
-        $this->cache->save($cacheEntry, $movies, strtotime('tomorrow') - time());
-        $this->logger->debug('Cache saved for movies ' . $cacheEntry, $resultingOptions);
-
 
         return $movies;
     }

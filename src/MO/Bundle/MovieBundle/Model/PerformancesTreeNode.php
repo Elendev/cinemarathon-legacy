@@ -37,7 +37,7 @@ class PerformancesTreeNode {
 
         $this->childs = array();
 
-        if($this->formatterIndex < count(self::$formatters) + 1 && count($performances) > self::$performanceQuantityLimit){
+        if($this->formatterIndex < count(self::$formatters) -1 && count($performances) > self::$performanceQuantityLimit){
             $this->createNewLevel($performances, $formatterIndex);
         } else {
             $this->performances = $performances;
