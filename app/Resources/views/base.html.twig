@@ -61,7 +61,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{cities[currentCity]}} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 {% for key, city in cities %}
-                                    <li><a href="{{path('mo_movie.change_city_locale', {'cityLocale' : key})}}">{{city}}</a></li>
+                                    <li><a href="{{path('mo_movie.home', {'city' : key})}}">{{city}}</a></li>
                                 {% endfor %}
                             </ul>
                         </li>
