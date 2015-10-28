@@ -11,4 +11,11 @@ parameters:
     mailer_user: null
     mailer_password: null
     locale: en
-    secret: ThisTokenIsNotSoSecretChangeIt
+    secret: superSecretToken123456789asdf
+
+    app.cities.default: lausanne
+    app.cities.route_requirement: lausanne|geneve|bern|basel
+    app.cities.codes.lausanne:  20
+    app.cities.codes.geneve:    23
+    app.cities.codes.bern:     21
+    app.cities.codes.basel:      22

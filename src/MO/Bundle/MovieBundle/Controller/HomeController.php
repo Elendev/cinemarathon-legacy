@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class HomeController
+ * @package MO\Bundle\MovieBundle\Controller
+ */
 class HomeController extends Controller
 {
 
@@ -141,7 +145,9 @@ class HomeController extends Controller
     }
 
     private function getCityLocale(Request $request){
-        return $request->cookies->get('city_locale', 20);
+        //return $request->cookies->get('city_locale', 20);
+        $city = $request->attributes->get('city');
+        return $this->getParameter('app.cities.codes.' . $city, 20);
     }
 
     private function createComboForm($locale){

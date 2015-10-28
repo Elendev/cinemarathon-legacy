@@ -36,12 +36,12 @@ class LocaleTwigExtension extends \Twig_Extension{
     public function getGlobals(){
         return array(
             'cities' => array(
-                20 => 'Lausanne',
-                23 => 'Genève',
-                21 => 'Berne',
-                22 => 'Bâle'
+                'lausanne' => 'Lausanne',
+                'geneve' => 'Genève',
+                'bern' => 'Berne',
+                'basel' => 'Bâle'
             ),
-            'currentCity' => $this->container->get('request')->cookies->get('city_locale', 20),
+            'currentCity' => $this->container->get('request')->attributes->get('city'),
             'lastCacheUpdate' => $this->container->get('mo_movie.provider.pathe')->getLastCacheUpdate()
         );
     }

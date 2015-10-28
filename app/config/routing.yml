@@ -1,4 +1,17 @@
 mo_movie:
     resource: "@MOMovieBundle/Controller/"
     type:     annotation
+    prefix: /{city}
+    defaults:
+        city: "%app.cities.default%"
+    requirements:
+        city: "%app.cities.route_requirement%"
+
+default_home:
+    path: /
+    defaults:
+        _controller: FrameworkBundle:Redirect:urlRedirect
+        path: /lausanne
+
+
 
