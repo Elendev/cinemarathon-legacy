@@ -145,7 +145,6 @@ class HomeController extends Controller
     }
 
     private function createComboForm($locale){
-        //return $this->createForm(new SearchFormType($movieList, $this->generateUrl('mo_movie.movie_timeline')));
-        return $this->createForm('search_form', null, array('locale' => $locale));
+        return $this->get('form.factory')->createNamed('', 'search_form', null, array('locale' => $locale));
     }
 }
