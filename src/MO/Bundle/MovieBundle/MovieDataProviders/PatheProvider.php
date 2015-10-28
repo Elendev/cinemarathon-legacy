@@ -368,18 +368,18 @@ class PatheProvider {
     /**
      * Go through every movies to upload the cache
      */
-    public function updateCache($locales = null) {
+    public function updateCache($cities = null) {
 
-        if($locales == null){
-            $locales = array(20, 21, 22, 23);
+        if($cities == null){
+            $cities = explode('|', $this->container->getParameter('app.cities.route_requirement'));
         }
 
         $this->cache->flushAll();
 
-        foreach($locales as $locale){
-            $movies = $this->getCurrentMovies(array('locale' => $locale));
+        foreach($cities as $city){
+            $movies = $this->getCurrentMovies(array('locale' => $city));
             foreach($movies as $movie){
-                $this->getMovie($movie->getPageUrl(), array('locale' => $locale));
+                $this->getMovie($movie->getPageUrl(), array('locale' => $city));
             }
         }
 
