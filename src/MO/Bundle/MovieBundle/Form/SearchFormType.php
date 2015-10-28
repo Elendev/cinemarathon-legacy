@@ -99,6 +99,8 @@ class SearchFormType extends AbstractType{
             ->add('movies', $mobileDetect->isMobile() ? 'choice' : 'genemu_jqueryselect2_choice', array('choices' => $movieArray, 'required' => true, 'multiple' => true, 'label' => 'Films requis (min. 1)'))
             ->add('same_cinema', 'checkbox', array('required' => false, 'label' => 'Même cinéma', 'attr' => array('checked'   => 'checked')))
             ->add('same_hall', 'checkbox', array('required' => false, 'label' => 'Même salle'))
+            ->add('three_dimension', 'choice', array('label' => '3D', 'choices' => array('all' => 'Tout', '3d' => 'En 3D', 'standard' => 'En 2D')))
+            ->add('language', 'choice', array('label' => 'Language', 'choices' => array('all' => 'Tout', 'vf' => 'Français', 'en' => 'Anglais')))
             ->add('min_time_between', 'choice', array('label' => 'Temps min. entre séances', 'choices' => $timeList, 'data' => 10 * 60))
             ->add('max_time_between', 'choice', array('label' => 'Temps max. entre séances', 'choices' => $timeList, 'data' => 30*60))
             ->add('serie_min_size', 'choice', array('label' => 'Nb. min de séances', 'choices' => $nbSeries, 'data' => 2))

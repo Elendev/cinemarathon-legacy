@@ -26,16 +26,16 @@
                         {{performance.cinema.name}} {{performance.kind}}
                     </div>
 
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                         {{performance.hall.name}}
                     </div>
 
-                    <div class="col-xs-3">
-                        {{performance.startDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm - eeee d MMMM Y")}}
+                    <div class="col-xs-2">
+                        {{performance.version|upper}}
                     </div>
 
-                    <div class="col-xs-3">
-                        {{performance.endDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm - eeee d MMMM Y")}}
+                    <div class="col-xs-5">
+                        {{performance.startDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm")}} - {{performance.endDate|localizeddate('full', 'none', app.request.locale, none, "HH'h'mm")}} {{performance.startDate|localizeddate('full', 'none', app.request.locale, none, "eeee d MMMM Y")}}
                     </div>
                 </div>
             {% endfor %}

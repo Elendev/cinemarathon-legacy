@@ -187,6 +187,10 @@ class PatheProvider {
             $hallRule = '/hallArray\["' . $copNum . '"\](?:\s*)=(?:\s*)"([^;"]*)";/';
             preg_match($hallRule, $pageContent, $hallMatch);
 
+            $clueTip = $crawler->filter('.cluetip[cop=' . $copNum . ']');
+            $is3D = $clueTip->filter('.movie3D')->count() > 0;
+            $language = $clueTip->parents()->parents()->filter('abbr')->text();
+
 
             $cinema = $this->cinemaPool->getCinema($cinemaMatch[1]);
             $hall = $this->cinemaPool->getHall($cinema, $hallMatch[1]);
@@ -216,6 +220,12 @@ class PatheProvider {
             $performance->setEndDate($endDate);
 
             $performance->setMovie($movie);
+            $performance->setVersion(strtolower($language));
+
+            if ($is3D) {
+                $performance->setKind(Performance::KIND_3D);
+            }
+
             $movie->addPerformance($performance);
 
             $performancesCop[$copNum] = $performance;

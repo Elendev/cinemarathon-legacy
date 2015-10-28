@@ -102,6 +102,8 @@ class HomeController extends Controller
                 'locale' => $this->getCityLocale($request),
                 'same_cinema' => $form->get('same_cinema')->getData(),
                 'same_hall' => $form->get('same_hall')->getData(),
+                'language' => $form->get('language')->getData(),
+                'three_dimension' => $form->get('three_dimension')->getData(),
                 'min_time_between' => $form->get('min_time_between')->getData(),
                 'max_time_between' => $form->get('max_time_between')->getData(),
                 'start_time_min' => $form->get('start_time_min')->getData(),

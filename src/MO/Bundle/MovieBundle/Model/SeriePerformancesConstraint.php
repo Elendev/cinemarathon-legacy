@@ -17,6 +17,8 @@ class SeriePerformancesConstraint {
         $this->constraints = array_merge(array(
             'same_cinema' => true,
             'same_hall' => false,
+            'language' => 'all',
+            'three_dimension' => 'all',
             'min_time_between' => 5*60,
             'max_time_between' => 60*60,
             'start_time_min' => 0,
@@ -83,6 +85,20 @@ class SeriePerformancesConstraint {
      */
     public function performanceRespectConstraint(Performance $performance, $constraints = array()) {
         $computedConstraints = array_merge($this->constraints, $constraints);
+
+        if($computedConstraints['language'] != 'all') {
+            if (strtolower($performance->getVersion()) != $computedConstraints['language']) {
+                return false;
+            }
+        }
+
+        if($computedConstraints['three_dimension'] != 'all') {
+            if ($computedConstraints['three_dimension'] == '3d' && $performance->getKind() != Performance::KIND_3D) {
+                return false;
+            } else if ($computedConstraints['three_dimension'] == 'standard' && $performance->getKind() != Performance::KIND_STANDARD) {
+                return false;
+            }
+        }
 
         if($computedConstraints['date_min'] !== null){
             if($performance->getStartDate()->getTimestamp() < $computedConstraints['date_min']){

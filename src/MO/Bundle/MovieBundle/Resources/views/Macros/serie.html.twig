@@ -30,9 +30,10 @@
                                     <img class="img-responsive img-rounded" src="{{performance.movie.imageUrl}}"/>
                                 </div>
                                 <div class="col-xs-9 col-sm-9 col-md-9">
-                                    <h4><a href="{{performance.movie.pageUrl}}" target="_blank">{{performance.movie.name}} {{performance.version}}{% if performance.kind == '3D'%} 3D{% endif %}</a></h4>
+                                    <h4><a href="{{performance.movie.pageUrl}}" target="_blank">{{performance.movie.name}}</a></h4>
                                     <h4>{{performance.cinema.name}} {{performance.hall.name}}</h4>
                                     <h5>{{performance.startDate|date('H\\hi')}} - {{performance.endDate|date('H\\hi')}}</h5>
+                                    <h5><span class="label label-default">{{performance.version|upper}}</span>{% if performance.kind == '3D'%} <span class="badge">3D</span>{% endif %}</h5>
                                 </div>
                             </div>
                         </div>
