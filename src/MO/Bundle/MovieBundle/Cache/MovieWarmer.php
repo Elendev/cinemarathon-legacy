@@ -52,7 +52,7 @@ class MovieWarmer implements CacheWarmerInterface {
         $cache = new FilesystemCache($cacheDir . $this->cachePath);
         $cinemaPool = $this->container->get('mo_movie.pool.cinema');
 
-        $provider = new PatheProvider($cinemaPool, $cache);
+        $provider = new PatheProvider($cinemaPool, $cache, $this->container);
 
         $provider->updateCache();
 
@@ -61,10 +61,10 @@ class MovieWarmer implements CacheWarmerInterface {
 
 
         //warmup teaser series for every locale
-        $locales = array(20, 21, 22, 23);
+        $cities = explode('|', $this->container->getParameter('app.cities.route_requirement'));
 
-        foreach($locales as $locale){
-            $movieMatcherManager->getTeaserSeries(3, array('locale' => $locale));
+        foreach($cities as $city){
+            $movieMatcherManager->getTeaserSeries(3, array('locale' => $city));
         }
 
 
