@@ -403,7 +403,8 @@ class PatheProvider {
         $opts = array(
             'http' => array(
                 'method' => 'GET',
-                'header' => "Cookie: patheregion=city=" . $options['locale'] . "\r\n"
+                'header' => "Cookie: patheregion=city=" . $options['locale'] . "\r\n" .
+                            "Accept-Language: fr-FR,fr;q=0.8\r\n"
             )
         );
 
