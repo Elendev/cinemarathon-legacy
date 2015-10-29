@@ -30,12 +30,12 @@ class HomeController extends Controller
     public function homeAction(Request $request)
     {
         $teaserSerie = $this->get('mo_movie.manager.movie_matcher')->getTeaserSeries(3, array(
-            'locale' => $this->getCityLocale($request)
+            'city' => $this->getCity($request)
         ));
 
         return array(
             'serieTeaser' => $teaserSerie,
-            'form' => $this->createComboForm($this->getCityLocale($request))->createView()
+            'form' => $this->createComboForm($this->getCity($request))->createView()
         );
     }
 
@@ -48,7 +48,7 @@ class HomeController extends Controller
     public function movieListAction(Request $request)
     {
         $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array(
-            'locale' => $this->getCityLocale($request)
+            'city' => $this->getCity($request)
         ));
 
         return array(
@@ -67,7 +67,7 @@ class HomeController extends Controller
 
         if($url){
             $movie = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($url, array(
-                'locale' => $this->getCityLocale($request)
+                'city' => $this->getCity($request)
             ));
         } else {
             $movie = null;
@@ -86,9 +86,9 @@ class HomeController extends Controller
      * @param Request $request
      */
     public function moviesTimelineAction(Request $request){
-        $movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array('locale' => $this->getCityLocale($request)));
+        //$movies = $this->get('mo_movie.manager.movie_manager')->getCurrentMovies(array('locale' => $this->getCityLocale($request)));
 
-        $form = $this->createComboForm($this->getCityLocale($request));
+        $form = $this->createComboForm($this->getCity($request));
 
         $form->handleRequest($request);
 
@@ -103,7 +103,7 @@ class HomeController extends Controller
             }
 
             $options = array(
-                'locale' => $this->getCityLocale($request),
+                'city' => $this->getCity($request),
                 'same_cinema' => $form->get('same_cinema')->getData(),
                 'same_hall' => $form->get('same_hall')->getData(),
                 'language' => $form->get('language')->getData(),
@@ -128,14 +128,11 @@ class HomeController extends Controller
         );
     }
 
-    private function getCityLocale(Request $request){
-        //return $request->cookies->get('city_locale', 20);
-        $city = $request->attributes->get('city');
-        return $city;
-        //return $this->getParameter('app.cities.codes.' . $city, 20);
+    private function getCity(Request $request){
+        return $request->attributes->get('city');
     }
 
-    private function createComboForm($locale){
-        return $this->get('form.factory')->createNamed('', 'search_form', null, array('locale' => $locale));
+    private function createComboForm($city){
+        return $this->get('form.factory')->createNamed('', 'search_form', null, array('city' => $city));
     }
 }

@@ -20,7 +20,7 @@ services:
 
     mo_movie.manager.movie_matcher:
         class: MO\Bundle\MovieBundle\Manager\MovieMatcherManager
-        arguments: [@mo_movie.manager.movie_manager, @mo_movie.cache.movie_cache, @?debug.stopwatch]
+        arguments: [@mo_movie.manager.movie_manager, @mo_movie.cache.movie_cache, "%app.cities.default%", @?debug.stopwatch]
 
     #Twig extensions
     mo_movie.twig.locale_extension:

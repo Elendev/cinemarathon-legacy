@@ -127,7 +127,7 @@ class SearchFormType extends AbstractType{
         $resolver->setDefaults(array(
             'csrf_protection' => false,
         ))->setRequired(array(
-                'locale'
+                'city'
             ));
     }
 }

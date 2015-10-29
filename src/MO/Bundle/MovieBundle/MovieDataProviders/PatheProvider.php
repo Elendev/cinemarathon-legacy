@@ -63,10 +63,12 @@ class PatheProvider {
     public function getCurrentMovies($options = array()) {
 
         $resultingOptions = array_merge(
-            array(
-                'locale' => $this->container->getParameter('app.cities.default')
-            ),
-            $options);
+          array(
+            'city' => 'lausanne'
+          ),
+          $options);
+
+        $resultingOptions['locale'] = $this->container->getParameter('app.cities.codes.' . $resultingOptions['city']);
 
         $cacheEntry = 'pathe_movies_' . $resultingOptions['locale'];
 
@@ -78,7 +80,7 @@ class PatheProvider {
             return $movies;
         }
 
-        $cityUrl = str_replace('[city]', $resultingOptions['locale'], $this->moviesUrl);
+        $cityUrl = str_replace('[city]', $resultingOptions['city'], $this->moviesUrl);
         $pageContent = file_get_contents(str_replace('[page]', 1, $cityUrl), false, $this->getStreamContext($resultingOptions));
         $crawler = new Crawler($pageContent);
 
@@ -144,9 +146,11 @@ class PatheProvider {
     public function getCurrentMoviesWithPerformances($options = array()){
         $resultingOptions = array_merge(
             array(
-                'locale' => 20
+                'city' => 'lausanne'
             ),
             $options);
+
+        $resultingOptions['locale'] = $this->container->getParameter('app.cities.codes.' . $resultingOptions['city']);
 
         if(array_key_exists($resultingOptions['locale'], $this->movies)){
             return $this->movies[$resultingOptions['locale']];
@@ -170,9 +174,11 @@ class PatheProvider {
 
         $resultingOptions = array_merge(
             array(
-                'locale' => 20
+                'city' => 'lausanne'
             ),
             $options);
+
+        $resultingOptions['locale'] = $this->container->getParameter('app.cities.codes.' . $resultingOptions['city']);
 
         if(array_key_exists($resultingOptions['locale'], $this->movies) && array_key_exists($url, $this->movies[$resultingOptions['locale']])){
             return $this->movies[$resultingOptions['locale']];

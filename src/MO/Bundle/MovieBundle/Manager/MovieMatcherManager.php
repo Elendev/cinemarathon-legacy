@@ -45,14 +45,14 @@ class MovieMatcherManager {
      */
     private $stopWatch;
 
-    public function __construct(MovieManager $movieManager, CacheProvider $cache, Stopwatch $stopwatch = null){
+    public function __construct(MovieManager $movieManager, CacheProvider $cache, $defaultCity = 'lausanne', Stopwatch $stopwatch = null){
         $this->movieManager = $movieManager;
         $this->cache = $cache;
 
         $this->stopWatch = $stopwatch;
 
         $this->defaultOptions = array(
-            'locale' => 20,
+            'city' => $defaultCity,
             'same_cinema' => true,
             'same_hall' => false,
             'min_time_between' => 5*60,
@@ -121,7 +121,7 @@ class MovieMatcherManager {
     public function getTeaserSeries($quantity = 3, $options = array()){
 
         $options = $this->getOptions($options);
-        $cacheKey = 'movie_matcher_manager_teaser_series_' . $quantity . '_' . $options['locale'];
+        $cacheKey = 'movie_matcher_manager_teaser_series_' . $quantity . '_' . $options['city'];
         $series = array();
 
         if(null !== $this->stopWatch) {
@@ -333,12 +333,12 @@ class MovieMatcherManager {
             $this->stopWatch->start('getAllPerformancesTreeNode', 'MovieMatcherManager');
         }
 
-        $locale = $options['locale'];
-        $key = 'movie_matcher_manager_performances_treenode_all_' . $locale;
+        $city = $options['city'];
+        $key = 'movie_matcher_manager_performances_treenode_all_' . $city;
 
-        if(!array_key_exists($locale, $this->allPerformancesTreeNodes)){
+        if(!array_key_exists($city, $this->allPerformancesTreeNodes)){
             if($this->cache->contains($key)){
-                $this->allPerformancesTreeNodes[$locale] = $this->cache->fetch($key);
+                $this->allPerformancesTreeNodes[$city] = $this->cache->fetch($key);
             } else {
                 //get all performances for all movies
                 $performances = array();
@@ -347,7 +347,7 @@ class MovieMatcherManager {
                     $performances = array_merge($performances, $movie->getPerformances());
                 }
                 $performancesTreeNode = new PerformancesTreeNode($performances);
-                $this->allPerformancesTreeNodes[$locale] = $performancesTreeNode;
+                $this->allPerformancesTreeNodes[$city] = $performancesTreeNode;
 
                 $this->cache->save($key, $performancesTreeNode, strtotime('tomorrow') - time());
             }
@@ -358,7 +358,7 @@ class MovieMatcherManager {
         }
 
 
-        return $this->allPerformancesTreeNodes[$locale];
+        return $this->allPerformancesTreeNodes[$city];
     }
 
     private function getOptions($options){

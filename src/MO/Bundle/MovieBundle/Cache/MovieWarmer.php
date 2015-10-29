@@ -64,7 +64,7 @@ class MovieWarmer implements CacheWarmerInterface {
         $cities = explode('|', $this->container->getParameter('app.cities.route_requirement'));
 
         foreach($cities as $city){
-            $movieMatcherManager->getTeaserSeries(3, array('locale' => $city));
+            $movieMatcherManager->getTeaserSeries(3, array('city' => $city));
         }
 
 
