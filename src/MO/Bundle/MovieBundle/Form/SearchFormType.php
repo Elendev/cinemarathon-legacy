@@ -93,6 +93,7 @@ class SearchFormType extends AbstractType{
         //for mobile, propose normal choice
         $mobileDetect = new \Mobile_Detect();
 
+
         $builder
             ->setAction($this->router->generate('mo_movie.movie_timeline'))
             ->setMethod('GET')

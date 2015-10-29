@@ -35,6 +35,13 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: setLocale }
 
+    #City listener
+    mo_movie.city.kernel_request_listener:
+        class: MO\Bundle\MovieBundle\EventListener\CityListener
+        arguments: [@router]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: setCity }
+
 
     #Forms
     mo_movie.form.type.search_form:

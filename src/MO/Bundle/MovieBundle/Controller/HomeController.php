@@ -99,7 +99,7 @@ class HomeController extends Controller
             $moviesToUse = $form->get('movies')->getData();
 
             foreach($moviesToUse as $movieUrl){
-                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl, array('locale' => $this->getCityLocale($request)));
+                $movieList[] = $this->get('mo_movie.manager.movie_manager')->getMovieFromUrl($movieUrl, array('locale' => $this->getCity($request)));
             }
 
             $options = array(
