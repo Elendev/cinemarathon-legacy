@@ -249,7 +249,7 @@ class PatheProvider {
             $startDateString = $date . ' ' . date('Y') . ' ' . $startHour;
             $endDateString = $date . ' ' . date('Y') . ' ' . $endHour;
 
-            $english = array('Jan','Febr','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+            $english = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
             $french = array('janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche');
 
             $startDate = \DateTime::createFromFormat('D d M Y H:i', str_replace($french, $english, strtolower($startDateString)));
